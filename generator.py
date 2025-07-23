@@ -77,7 +77,7 @@ def generate(context, ngram, dict_tokens, dict_in, vocab):
     next_word = ''
     while next_word not in end_tokens:
         # Get the last (n-1) or n tokens for context (depending on your convention)
-        context = text[-(n-1):]  # This should be (n-1)! Not n
+        context = text[-(n-1):]
 
         # Map tokens to indices; if unknown, use None
         indices = [dict_tokens.get(token) for token in context]
@@ -108,3 +108,5 @@ vocab = ["hallo_", "ha", "llo_", "Welt!"]
 context = "hallo dcWelt! xsl"
 
 to_byte_pair(context, vocab)
+
+
