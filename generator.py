@@ -65,22 +65,22 @@ def to_byte_pair(context, vocab):
     return final_list
 
 
-def generate(context, ngram, dict_tokens, dict_in, vocab):
+def generate(context, ngrams, n, vocab):
     """
     Generate text using an n-gram given a defined context.
 
     Args:
         context (str): The initial context string.
         ngram (np.ndarray): The n-dimensional n-gram tensor. Shape = (V, V, ..., V)
-        dict_tokens (dict): Mapping from token -> index.
-        dict_in (dict): Mapping from index -> token.
+        # dict_tokens (dict): Mapping from token -> index.
+        # dict_in (dict): Mapping from index -> token.
         vocab (list of str): Subword tokens used by the tokenizer.
 
     Returns:
         str: The generated text with underscores replaced by spaces.
     """
-    n = ngram.ndim  # order of the n-gram model
-    ngram = np.array(ngram)  # ensure it's a NumPy array (redundant if it already is)
+    # n = ngram.ndim  # order of the n-gram model
+    ngram = ngrams[n-1] # ensure it's a NumPy array (redundant if it already is)
 
     # define end_tokens as punctuation
     end_tokens = ['.', ':', '?', '!']
@@ -94,7 +94,16 @@ def generate(context, ngram, dict_tokens, dict_in, vocab):
         context = text[-(n-1):]
 
         preceding_keys = tuple(context)
-        next_token = max(ngram[preceding_keys].iteritems(), key=operator.itemgetter(1))[0]
+
+        def backoff(n, ngrams, keys):
+            if keys in ngrams[n].keys():
+                next_token = max(ngrams[n][keys].iteritems(), key=operator.itemgetter(1))[0]
+                return next_token
+            else:
+                return backoff(n-1, ngrams, keys)
+
+
+        next_word = backoff(n, ngrams, preceding_keys)
         # Map tokens to indices; if unknown, use None
         # indices = [dict_tokens.get(token) for token in context]
         #
@@ -113,7 +122,7 @@ def generate(context, ngram, dict_tokens, dict_in, vocab):
 
         # next_word = dict_in[next_idx]
         # text.append(next_word)
-        text.append(next_token)
+        text.append(next_word)
 
     # Join final tokens and clean up
     pretty_text = ''.join(text)
