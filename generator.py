@@ -95,10 +95,12 @@ def generate(context, ngrams, n, vocab):
         preceding_keys = tuple(context)
 
         def backoff(n, ngrams, keys):
-            if keys in ngrams[n].keys():
-                next_token = max(ngrams[n][keys].iteritems(), key=operator.itemgetter(1))[0]
+            if keys in ngrams[n-1].keys():
+                next_token = max(ngrams[n-1][keys].iteritems(), key=operator.itemgetter(1))[0]
                 return next_token
             else:
+                if n == 1:
+                    return 'and'
                 return backoff(n-1, ngrams, keys)
 
 
