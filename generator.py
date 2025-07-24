@@ -13,6 +13,7 @@ def to_byte_pair(context, vocab):
         list of str: The tokenized input as a list of matched tokens and any leftover characters.
     """
     # Replace spaces with underscores for consistent token matching
+    context = context.lower()
     context += "_"
     context = context.replace(' ', '_')
     punctuation = [',', '.', '!', '?', ':', ';']
