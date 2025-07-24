@@ -16,7 +16,8 @@ class N_gram:
     self.ndim = n
     self.unigram_probs = self.get_unigram_probs(corpus)
     self.split_text = self.split_ngrams(corpus, n)
-    #self.n_gram_probs = self.n_gram_probs(self.split_text, n)
+    self.n_gram_probs = self.calculate_n_gram_probs(self.split_text, n)
+
 
 
   def get_unigram_probs(self, corpus):
@@ -36,8 +37,10 @@ class N_gram:
     """
     # want to split this into the maximum possible length
     # why am I not passing the vocabulary?
+    print(type(corpus))
     split_text = []
     for i in range(len(corpus) - n + 1):
+      
       split_text.append(corpus[i : i+n])
 
     return split_text
@@ -48,6 +51,9 @@ class N_gram:
     Builds conditional probabilities: P(w_n | w_1, ..., w_{n-1})
     Currently uses nested dictionaries, need to make that more useful for you
     """
+    if n == 1:
+      return self.unigram_probs
+    
     # nested defaultdicts for automatic initialization
     n_gram_counts = defaultdict(lambda: defaultdict(int))
 
@@ -71,29 +77,36 @@ class N_gram:
     Calculate perplexity of a given text based on an n-gram model.
 
     Args:
-        split_text (list): Tokenized input text (list of tokens).
-        n_gram_probs (dict of dict): Nested dictionary with n-gram probabilities.
+        split_text (str): Input text string, use test text.
+        n_gram_probs (dict of dict): ...
     Returns:
         float: Perplexity value of the input text.
     """
-    log_prob_sum = 0.0
-    count = 0
 
-    # Iterate through text
-    for t in range(len(split_text) - self.ndim + 1):
-      context = tuple(split_text[t:t + self.ndim - 1])
-      next_token = split_text[t + self.ndim - 1]
+    #text = generator.to_byte_pair.to_byte_pair(text,vocab) # already done
+    #n = self.ndim  # order of the n-gram model # can access through class
+    prob_total = 1.0
 
-      # Small probability for unknown n-grams (smoothing)
-      prob = n_gram_probs.get(context, {}).get(next_token, 1e-8)
-      log_prob_sum += math.log(prob)
-      count += 1
+    # Iterate through the text, considering n-grams
+    for t in range(len(split_text) - self.ndim):
+      context = tuple(split_text[t:t + self.ndim - 1])  # (n-1)-gram
+      next_token = split_text[t + self.ndim - 1]        # next token after context
 
-    # Calculate total probability in log space to avoid floating point underflow
-    avg_log_prob = log_prob_sum / count
-    # Exponentiate at the end to get the real perplexity.
-    perplexity = math.exp(-avg_log_prob)
+      # Assign very small probability for unknown n-grams (smoothing) otherwise retrieve actual probability
+      prob = 0.0
+      if context in n_gram_probs and next_token in n_gram_probs[context]:
+        prob = n_gram_probs[context][next_token]
+      else:
+        prob = 1e-10  # unknown n-gram
 
-    print(f"Perplexity: {perplexity}")
-    return perplexity
- 
+      prob_total *= prob
+
+    print(f"Total probability: {prob_total}")
+    if prob_total > 0.0:
+      perplexity_value = prob_total ** (-1 / len(split_text))
+    else:
+      perplexity_value = float('inf')
+
+    print(f"Perplexity value: {perplexity_value}")
+    return perplexity_value
+
