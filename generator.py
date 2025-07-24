@@ -22,8 +22,6 @@ def to_byte_pair(context, vocab):
         for char in punctuation:
             if char != ' ':
                 result = result.replace(char, f'_{char}')
-            print(char)
-            print(result)
         return result
 
     context = remove_punctuation(context)
