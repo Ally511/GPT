@@ -77,36 +77,28 @@ class N_gram:
     Calculate perplexity of a given text based on an n-gram model.
 
     Args:
-        split_text (str): Input text string, use test text.
-        n_gram_probs (dict of dict): ...
+        split_text (list): Tokenized input text (list of tokens).
+        n_gram_probs (dict of dict): Nested dictionary with n-gram probabilities.
     Returns:
         float: Perplexity value of the input text.
     """
+    log_prob_sum = 0.0
+    count = 0
 
-    #text = generator.to_byte_pair.to_byte_pair(text,vocab) # already done
-    #n = self.ndim  # order of the n-gram model # can access through class
-    prob_total = 1.0
+    # Iterate through text
+    for t in range(len(split_text) - self.ndim + 1):
+      context = tuple(split_text[t:t + self.ndim - 1])
+      next_token = split_text[t + self.ndim - 1]
 
-    # Iterate through the text, considering n-grams
-    for t in range(len(split_text) - self.ndim):
-      context = tuple(split_text[t:t + self.ndim - 1])  # (n-1)-gram
-      next_token = split_text[t + self.ndim - 1]        # next token after context
+      # Small probability for unknown n-grams (smoothing)
+      prob = n_gram_probs.get(context, {}).get(next_token, 1e-8)
+      log_prob_sum += math.log(prob)
+      count += 1
 
-      # Assign very small probability for unknown n-grams (smoothing) otherwise retrieve actual probability
-      prob = 0.0
-      if context in n_gram_probs and next_token in n_gram_probs[context]:
-        prob = n_gram_probs[context][next_token]
-      else:
-        prob = 1e-10  # unknown n-gram
+    # Calculate total probability in log space to avoid floating point underflow
+    avg_log_prob = log_prob_sum / count
+    # Exponentiate at the end to get the real perplexity.
+    perplexity = math.exp(-avg_log_prob)
 
-      prob_total *= prob
-
-    print(f"Total probability: {prob_total}")
-    if prob_total > 0.0:
-      perplexity_value = prob_total ** (-1 / len(split_text))
-    else:
-      perplexity_value = float('inf')
-
-    print(f"Perplexity value: {perplexity_value}")
-    return perplexity_value
-
+    print(f"Perplexity: {perplexity}")
+    return perplexity

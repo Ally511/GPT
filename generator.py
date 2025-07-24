@@ -1,5 +1,6 @@
 import numpy as np
 import operator
+import random
 
 def to_byte_pair(context, vocab):
     """
@@ -64,6 +65,7 @@ def to_byte_pair(context, vocab):
     return final_list
 
 
+
 def generate(context, ngrams, n, vocab):
     """
     Generate text using an n-gram given a defined context.
@@ -88,19 +90,27 @@ def generate(context, ngrams, n, vocab):
     text = to_byte_pair(context, vocab)
 
     next_word = ''
-    while next_word not in end_tokens:
+    while next_word not in end_tokens and len(text) <= 200:
         # Get the last (n-1) or n tokens for context (depending on your convention)
+        # print(text)
         context = text[-(n-1):]
 
         preceding_keys = tuple(context)
 
         def backoff(n, ngrams, keys):
+            #print(keys)
             if keys in ngrams[n-1].keys():
-                next_token = max(ngrams[n-1][keys].iteritems(), key=operator.itemgetter(1))[0]
+                
+                sorted_dict = {key: value for key, value in sorted(ngrams[n-1][keys].items(), key=lambda item: item[1], reverse=True)}
+                # print(sorted_dict)
+                zufall = random.randint(0,(len(sorted_dict)-1)//2)
+                next_token = list(sorted_dict.keys())[zufall]
                 return next_token
+            
             else:
+                print("wrong!!!")
                 if n == 1:
-                    return 'and'
+                    return 'my_'
                 return backoff(n-1, ngrams, keys)
 
 
@@ -123,17 +133,16 @@ def generate(context, ngrams, n, vocab):
 
         # next_word = dict_in[next_idx]
         # text.append(next_word)
+        
         text.append(next_word)
-
+        # Join final tokens and clean up
+        # pretty_text = ''.join(text)
+        # pretty_text = pretty_text.replace('_', ' ')
+        #print(pretty_text)
+        # print(text)
+    # text = str(text)
     # Join final tokens and clean up
-    pretty_text = ''.join(text)
+    pretty_text = "".join(str(x) for x in text)
+    # pretty_text = ''.join(text)
     pretty_text = pretty_text.replace('_', ' ')
     return pretty_text
-
-
-vocab = ["hallo_", "ha", "llo_", "Welt!"]
-context = "hallo dcWelt! xsl"
-
-to_byte_pair(context, vocab)
-
-

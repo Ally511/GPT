@@ -7,6 +7,7 @@ contains helper functions:
 - get_top_bigrams: extracts the top k bigrams from a dictionary of n-gram probabilities
 - generate_n_grams: generates n n-grams from a given corpus
 """
+
 import nltk
 from collections import Counter
 import tiktoken
@@ -35,6 +36,17 @@ def get_words(text):
 
   return sorted_dict
 
+def generate_n_grams(n_gram_corpus, n):
+    """
+    Generates up to n n-grams from the given corpus.
+    """
+    list_of_n_grams = []
+    for i in range (0,n):
+        list_of_n_grams.append(N_gram(n_gram_corpus, i+1))
+
+    return list_of_n_grams
+        
+   
 
 def performance(sorted_dict, vocab, k=10000):
 
@@ -103,14 +115,3 @@ def get_top_bigrams(n_gram_probs, k=5):
         bigram, prob = bigram_list[i]
         print(f"{bigram} → {prob:.4f}")
 
-def generate_n_grams(n_gram_corpus, n):
-    """
-    Generates up to n n-grams from the given corpus.
-    """
-    list_of_n_grams = []
-    for i in range (0,n):
-        list_of_n_grams.append(N_gram(n_gram_corpus, i+1))
-
-    return list_of_n_grams
-        
-   
