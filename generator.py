@@ -17,7 +17,7 @@ def to_byte_pair(context, vocab):
     context = context.lower()
     context += "_"
     context = context.replace(' ', '_')
-    punctuation = [',', '.', '!', '?', ':', ';']
+    punctuation = [ '.', '!', '?', ':', ';','._', '!_', '?_', ':_', ';_']
     def remove_punctuation(input_string):
         result = input_string
         for char in punctuation:
