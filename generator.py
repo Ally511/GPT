@@ -1,4 +1,5 @@
 import numpy as np
+import operator
 
 def to_byte_pair(context, vocab):
     """
@@ -12,7 +13,20 @@ def to_byte_pair(context, vocab):
         list of str: The tokenized input as a list of matched tokens and any leftover characters.
     """
     # Replace spaces with underscores for consistent token matching
+    context += "_"
     context = context.replace(' ', '_')
+    punctuation = [',', '.', '!', '?', ':', ';']
+    def remove_punctuation(input_string):
+        result = input_string
+        for char in punctuation:
+            if char != ' ':
+                result = result.replace(char, f'_{char}')
+            print(char)
+            print(result)
+        return result
+
+    context = remove_punctuation(context)
+
 
     # Sort vocabulary by length (longer matches first)
     vocab.sort(key=lambda x: len(x), reverse=True)
@@ -79,24 +93,27 @@ def generate(context, ngram, dict_tokens, dict_in, vocab):
         # Get the last (n-1) or n tokens for context (depending on your convention)
         context = text[-(n-1):]
 
+        preceding_keys = tuple(context)
+        next_token = max(ngram[preceding_keys].iteritems(), key=operator.itemgetter(1))[0]
         # Map tokens to indices; if unknown, use None
-        indices = [dict_tokens.get(token) for token in context]
+        # indices = [dict_tokens.get(token) for token in context]
+        #
+        # if None in indices:
+        #     # If unknown tokens: fallback to overall next-token distribution
+        #     column = ngram.sum(axis=tuple(range(n - 1)))
+        #     next_idx = column.argmax()
+        # else:
+        #     # Build index tuple: fix context, free last axis
+        #     index = tuple(indices) + (slice(None),)
+        #
+        #     # Get conditional next-token distribution
+        #     column = ngram[index]
+        #
+        #     next_idx = column.argmax()
 
-        if None in indices:
-            # If unknown tokens: fallback to overall next-token distribution
-            column = ngram.sum(axis=tuple(range(n - 1)))
-            next_idx = column.argmax()
-        else:
-            # Build index tuple: fix context, free last axis
-            index = tuple(indices) + (slice(None),)
-
-            # Get conditional next-token distribution
-            column = ngram[index]
-
-            next_idx = column.argmax()
-
-        next_word = dict_in[next_idx]
-        text.append(next_word)
+        # next_word = dict_in[next_idx]
+        # text.append(next_word)
+        text.append(next_token)
 
     # Join final tokens and clean up
     pretty_text = ''.join(text)
