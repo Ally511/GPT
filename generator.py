@@ -17,7 +17,7 @@ def to_byte_pair(context, vocab):
     context = context.lower()
     context += "_"
     context = context.replace(' ', '_')
-    punctuation = [ '.', '!', '?', ':', ';','._', '!_', '?_', ':_', ';_']
+    punctuation = [ '.', '!', '?', ':', ';']
     def remove_punctuation(input_string):
         result = input_string
         for char in punctuation:
@@ -84,7 +84,7 @@ def generate(context, ngrams, n, vocab):
     ngram = ngrams[n-1] # ensure it's a NumPy array (redundant if it already is)
 
     # define end_tokens as punctuation
-    end_tokens = ['.', ':', '?', '!']
+    end_tokens = ['.', ':', '?', '!','._', '!_', '?_', ':_', ';_']
 
     # Tokenize input context
     text = to_byte_pair(context, vocab)
