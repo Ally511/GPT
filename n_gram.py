@@ -16,7 +16,8 @@ class N_gram:
     self.ndim = n
     self.unigram_probs = self.get_unigram_probs(corpus)
     self.split_text = self.split_ngrams(corpus, n)
-    #self.n_gram_probs = self.n_gram_probs(self.split_text, n)
+    self.n_gram_probs = self.calculate_n_gram_probs(self.split_text, n)
+
 
 
   def get_unigram_probs(self, corpus):
@@ -36,8 +37,10 @@ class N_gram:
     """
     # want to split this into the maximum possible length
     # why am I not passing the vocabulary?
+    print(type(corpus))
     split_text = []
     for i in range(len(corpus) - n + 1):
+      
       split_text.append(corpus[i : i+n])
 
     return split_text
@@ -48,6 +51,9 @@ class N_gram:
     Builds conditional probabilities: P(w_n | w_1, ..., w_{n-1})
     Currently uses nested dictionaries, need to make that more useful for you
     """
+    if n == 1:
+      return self.unigram_probs
+    
     # nested defaultdicts for automatic initialization
     n_gram_counts = defaultdict(lambda: defaultdict(int))
 
@@ -96,4 +102,3 @@ class N_gram:
 
     print(f"Perplexity: {perplexity}")
     return perplexity
- 
