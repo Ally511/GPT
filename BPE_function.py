@@ -9,7 +9,7 @@ from collections import Counter
 
 from utility_functions import performance
 
-def bpe(dictionary, k=None):
+def bpe(dictionary, k):
   """
   Input:
     dictionary (dict): a dictionary that contains the tokens and their respective counts
