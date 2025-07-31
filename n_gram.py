@@ -15,8 +15,9 @@ class N_gram:
   def __init__(self, corpus, n):
     self.ndim = n
     self.unigram_probs = self.get_unigram_probs(corpus)
-    self.split_text = self.split_ngrams(corpus, n)
-    #self.n_gram_probs = self.n_gram_probs(self.split_text, n)
+    self.split_text = self.split_ngrams(corpus)
+    self.n_gram_probs = self.calculate_n_gram_probs(self.split_text)
+
 
 
   def get_unigram_probs(self, corpus):
@@ -29,25 +30,32 @@ class N_gram:
     return unigram_probs
 
 
-  def split_ngrams(self, corpus, n):
+  def split_ngrams(self, corpus):
     """
     Pass corpus (already to byte-pair)
     Funtion that chunks corpus into n-grams (n tokens are chunked together)
     """
     # want to split this into the maximum possible length
     # why am I not passing the vocabulary?
+    n = self.ndim
+    print(type(corpus))
     split_text = []
     for i in range(len(corpus) - n + 1):
+      
       split_text.append(corpus[i : i+n])
 
     return split_text
 
 
-  def calculate_n_gram_probs(self, split_text, n):
+  def calculate_n_gram_probs(self, split_text):
     """
     Builds conditional probabilities: P(w_n | w_1, ..., w_{n-1})
     Currently uses nested dictionaries, need to make that more useful for you
     """
+    n = self.ndim
+    if n == 1:
+      return self.unigram_probs
+    
     # nested defaultdicts for automatic initialization
     n_gram_counts = defaultdict(lambda: defaultdict(int))
 
@@ -66,7 +74,7 @@ class N_gram:
 
     return n_gram_probs
 
-  def perplexity(self, split_text, n_gram_probs):
+  def perplexity(self, split_text):
     """
     Calculate perplexity of a given text based on an n-gram model.
 
@@ -85,7 +93,7 @@ class N_gram:
       next_token = split_text[t + self.ndim - 1]
 
       # Small probability for unknown n-grams (smoothing)
-      prob = n_gram_probs.get(context, {}).get(next_token, 1e-8)
+      prob = self.n_gram_probs.get(context, {}).get(next_token, 1e-8)
       log_prob_sum += math.log(prob)
       count += 1
 
@@ -96,4 +104,3 @@ class N_gram:
 
     print(f"Perplexity: {perplexity}")
     return perplexity
- 
