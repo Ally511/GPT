@@ -2,3 +2,4 @@ nltk
 tiktoken
 numpy
 matplotlib
+torch
