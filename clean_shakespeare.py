@@ -1,8 +1,8 @@
 import re
 
 # Path to your large text file
-input_file = 'shakespeare.txt'
-output_file = 'clean_shakespeare.txt'
+input_file = 'corpora/shakespeare.txt'
+output_file = 'corpora/clean_shakespeare.txt'
 
 # The repeated chunk pattern (adjust as needed!)
 pattern = r"<<.*?>>"

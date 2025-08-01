@@ -1,5 +1,5 @@
 venv
 friends_episodes
 tokenizer_performance.py
-friends.txt
+corpora/friends.txt
 .idea
