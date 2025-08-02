@@ -1,4 +1,5 @@
 import torch.nn as nn
+from tqdm import tqdm
 
 # ToDO: include tqdm
 class Trainer:
@@ -18,6 +19,9 @@ class Trainer:
         self.model.train()
 
         for epoch in range(epochs):
+            print(f"Epoch {epoch + 1}/{epochs}")
+            progress_bar = tqdm(range(train_steps), desc="Training", leave=False)
+
             for train_step in range(train_steps):
                 # ToDO: adapt to how we handle batches
                 batch = get_batch(self.train_dataset)
@@ -33,4 +37,4 @@ class Trainer:
                 self.loss.backward()
                 self.optimizer.step()
 
-
+                progress_bar.set_postfix(loss=self.loss.item())
