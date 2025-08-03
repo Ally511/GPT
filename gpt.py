@@ -65,10 +65,10 @@ class GPT(nn.Module):
         # forward GPT model itself
         x = self.transformer_forward(self, idx, pos)
 
-        # (b, t, n_embd) -- > # (b, t, vocab_size)
+        # (b, t, n_embd) --> (b, t, vocab_size)
         logits = self.lm_head(x)
 
-        # calculate loss if targets
+        # calculate loss if targets given
         loss = None
         if targets is not None:
             # compute cross entropy, ignore -1 at output
@@ -76,5 +76,37 @@ class GPT(nn.Module):
         return logits, loss
     
     @th.no_grad()
-    def generate(self, idx, max_new_tokens, temperature=1.0, sampling=False, top_k=None):
-        ...
+    def generate(self, idx, max_new_tokens, temp=1.0, sampling=False, top_k=None):
+        """
+        Args:
+            idx (LongTensor): sequence of indices, shape (b,t)
+            max_new_tokens (int): maximum amount of tokens to generate
+            temp (float): temperature to scale probabilities of logits by
+            sampling (boolean): boolean controlling whether next token is sampled from distribution or argmax
+            top_k (int): if not None, only top k tokens are used in sampling
+        """
+        for _ in range(max_new_tokens):
+            # cut off at block-size
+            cropped_idx = idx if idx.size(1) <= self.block_size else idx[:, -self.block_size:]
+            # forward model, get logits for index
+            logits, _ = self(cropped_idx)
+            # logits at final step, scale by temp
+            logits = logits[:, -1, :] / temp
+
+            # if top_k, crop logits
+            if top_k is not None:
+                v, _ = th.topk(logits, top_k)
+                logits[logits < v[:, [-1]]] = -float('Inf')
+
+            # normalise logit probabilities
+            soft_logits = F.softmax(logits, dim=-1)
+
+            # sample from distribution or argmax
+            if sampling:
+                next_idx = th.multinomial(soft_logits, num_samples=1)
+            else:
+                _, next_idx = th.topk(soft_logits, k=1, dim=-1)
+
+            idx = th.cat((idx, next_idx), dim=1)
+
+        return idx
