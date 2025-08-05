@@ -5,7 +5,7 @@ import numpy as np
 import math
 from torch.nn import Module
 
-class causal_self_attention(nn.Module):
+class Causal_self_attention(nn.Module):
     """Causal Self Attention class that defines masked multi-head attention
     in Transformer Decoder Blocks"""
     def __init__(self,n_embd,n_head,dropout_rate,attn_pdrop,resid_pdrop,block_size):

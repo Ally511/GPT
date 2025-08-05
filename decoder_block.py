@@ -1,18 +1,18 @@
 import torch.nn as nn
+from gelu import Gelu
+from causal_self_attention import Causal_self_attention
 
 class Block(nn.Module):
     """ implementation of the decoder block in our GPT model. """
-    def __init__(self, embed_size, dropout_rate):
+    def __init__(self, embed_size, dropout_rate, attn_pdrop, resid_pdrop, n_head, block_size):
         super().__init__()
         self.layer_norm1 = nn.LayerNorm(embed_size)
-        # ToDo: adapt to self defined self attention
-        self.attention = CausalSelfAttention()
+        self.attention = Causal_self_attention(embed_size,n_head,dropout_rate,attn_pdrop,resid_pdrop,block_size)
         self.layer_norm2 = nn.LayerNorm(embed_size)
 
         # Layers for the MLP
         self.linear1 = nn.Linear(embed_size, 4*embed_size)
-        # ToDo: adapt to self defined Gelu
-        self.activation = GeLu()
+        self.activation = Gelu()
         self.linear2 = nn.Linear(4*embed_size, embed_size)
         self.dropout = nn.Dropout(dropout_rate)
 
