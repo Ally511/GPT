@@ -23,8 +23,9 @@ class GPT(nn.Module):
         # add linear layer
         self.lm_head = nn.Linear(config.n_embd, config.vocab_size, bias=False)
         # weights initialisation can be skipped completely? I think it just takes the default
-
-        self.count_params(nn.ModuleList([self.token_embd, self.posit_embd, self.dropout, self.all_blocks, self.layer_norm]))
+        trans_layers = nn.ModuleList([self.token_embd, self.posit_embd, self.dropout, self.all_blocks, self.layer_norm])
+        self.optimizer = self.configure_optimizer(trans_layers, config)
+        self.count_params(trans_layers)
     
     def count_params(self, layers):
         # no. parameters without lm_head
@@ -35,7 +36,11 @@ class GPT(nn.Module):
         
         print("Number of parameters: %.2fM" % (n_params/1e6,))
 
-    def configure_optimizer(self, params, train_config):
+    def configure_optimizer(self, layers, train_config):
+        params = []
+        for layer in layers:
+            params.append(layer.parameters())
+
         optimizer = th.optim.AdamW(params=params, lr=train_config.learning_rate, betas=train_config.betas)
         return optimizer
     
