@@ -17,7 +17,7 @@ class GPT(nn.Module):
         self.token_embd = nn.Embedding(config.vocab_size, config.n_embd)
         self.posit_embd = nn.Embedding(config.block_size, config.n_embd)
         self.dropout = nn.Dropout(config.embd_prdop)
-        self.all_blocks = nn.ModuleList([Block(config.n_embd, config.resid_pdrop) for _ in range(config.n_layer)])
+        self.all_blocks = nn.ModuleList([Block(config.n_embd, config.dropout, config.attn_pdrop, config.resid_pdrop, config.n_head, config.block_size) for _ in range(config.n_layer)])
         self.layer_norm = nn.LayerNorm(config.n_embd)
         
         # add linear layer
