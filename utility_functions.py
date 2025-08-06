@@ -11,8 +11,8 @@ contains helper functions:
 import nltk
 from collections import Counter
 import tiktoken
+import numpy as np
 from itertools import islice
-
 from n_gram import N_gram
 
 def get_words(text):
@@ -114,4 +114,37 @@ def get_top_bigrams(n_gram_probs, k=5):
     for i in range(min(k, len(bigram_list))):
         bigram, prob = bigram_list[i]
         print(f"{bigram} → {prob:.4f}")
+
+
+def get_batch(input, batch_size, chunk_size):
+    """ splits the input text into batches of chunks, returns input and target batches"""
+    input_batch = []
+    target_batch = []
+    idx = np.random.randint(0, len(input) - (chunk_size + 1), size=batch_size)
+    for i in range(0, len(idx)):
+        input_batch.append(input[idx[i]:idx[i] + chunk_size])
+        target_batch.append(input[idx[i] + 1:idx[i] + (chunk_size + 1)])
+
+    input_batch = np.array(input_batch)
+    target_batch = np.array(target_batch)
+
+    return input_batch, target_batch
+
+def decode_characters(input, vocab_train):
+    """Decodes a list of indices back to their corresponding characters
+    given the abive defined vocabulary"""
+    vocab = vocab_train
+    indices = np.arange(0, len(vocab), 1)
+    inidces = indices.astype(int)
+    indices = indices.tolist()
+    key_byte = dict(zip(vocab, indices))
+    value_byte = dict(zip(indices, vocab))
+
+    decoded = [] #given the input, we will decode it back to characters
+    for i in range(0,len(input)):
+        decoded.append(value_byte[input[i]])#using the translation dctionary: value_byte
+#make its prettier by joining list to actual words and replacing underscores with spaces
+    decoded = ''.join(decoded)
+    decoded = decoded.replace('_', ' ')
+    return decoded
 
