@@ -31,11 +31,11 @@ class Causal_self_attention(nn.Module):
         if not self.flash:
             print(
               "WARNING: using slow attention. Flash Attention requires PyTorch >= 2.0")
-            # causal mask to ensure that attention is only applied to the left in the input sequence
+            # causal mask to ensure that attention is only applied to the left in the input sequence"""
         self.register_buffer(
             "mask", 
             torch.tril(torch.ones(block_size, block_size)
-        ).view(1, 1, block_size, block_size))"""
+        ).view(1, 1, block_size, block_size))
         
         
         
@@ -50,14 +50,17 @@ class Causal_self_attention(nn.Module):
        v = v.view(B, T, self.n_head, C //self.n_head).transpose(1,2) 
 
        #not sure if we're supposed to use this
-       y = F.scaled_dot_product_attention(k,q,v, is_causal = True)
+       # 
+       attention_mask = (q @ k.transpose(-2,-1))* (1.0 / math.sqrt(k.size(-1)))
+       attention_mask = attention_mask.masked_fill(self.mask[:,:,:T,:T] == 0, float('-inf'))
+       y = F.scaled_dot_product_attention(query=q,key=k,value=v, attn_mask = attention_mask)
 
        #instead manually this ? :
 
        """attention = (q @ k.transpose(-2,-1))* (1.0 / math.sqrt(k.size(-1)))
        #diagonal mask
        #fill 0 mask with super small numbers so it won't affect softmax
-       attention = attention.masked_fill(self.mask[:,:,:T,:T] == 0, -1e9)
+       attention = attention.masked_fill(self.mask[:,:,:T,:T] == 0, float('-inf'))
        attention = F.softmax(attention, dim = 1)
        attention = self.attention_dropout(attention)
 
