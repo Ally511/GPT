@@ -20,25 +20,11 @@ class Causal_self_attention(nn.Module):
         self.attention_dropout = nn.Dropout(attn_pdrop)
         self.residual_dropout = nn.Dropout(resid_pdrop)
         self.dropout_rate = dropout_rate
+
+        #number of heads and number of embeddings
         self.n_head = n_head
         self.n_embd = n_embd
 
-        # using scaled dot product instead of flash attention
-        #not sure if we need this -> test it out
-        """self.flash = hasattr(
-                        torch.nn.functional, 
-                        'scaled_dot_product_attention')
-        if not self.flash:
-            print(
-              "WARNING: using slow attention. Flash Attention requires PyTorch >= 2.0")
-            # causal mask to ensure that attention is only applied to the left in the input sequence"""
-        self.register_buffer(
-            "mask", 
-            torch.tril(torch.ones(block_size, block_size)
-        ).view(1, 1, block_size, block_size))
-        
-        
-        
     def forward(self,x):
        # B = batch_size, T = sequence_len, C = embedding_dim
        B,T,C = x.size()
@@ -47,28 +33,30 @@ class Causal_self_attention(nn.Module):
        k, q, v = self.c_attention(x).split(self.n_embd, dim = 2)
        k = k.view(B, T, self.n_head, C //self.n_head).transpose(1,2)
        q = q.view(B, T, self.n_head, C //self.n_head).transpose(1,2)
-       v = v.view(B, T, self.n_head, C //self.n_head).transpose(1,2) 
+       v = v.view(B, T, self.n_head, C //self.n_head).transpose(1,2)
 
-       #not sure if we're supposed to use this
-       # 
-       attention_mask = (q @ k.transpose(-2,-1))* (1.0 / math.sqrt(k.size(-1)))
-       attention_mask = attention_mask.masked_fill(self.mask[:,:,:T,:T] == 0, float('-inf'))
-       y = F.scaled_dot_product_attention(query=q,key=k,value=v, attn_mask = attention_mask)
+       #scaled dot-product attention
+       scale = 1.0 / math.sqrt(k.size(-1))
+       attention = (q @ k.transpose(-2,-1)) * scale
 
-       #instead manually this ? :
+       #apply a causal mask(to mask out future tokens)
+       causal_mask = torch.triu(torch.ones(T,T,), diagonal=1).bool()
+       masked_attention = attention.masked_fill(causal_mask.unsqueeze(0).unsqueeze(0),float('-inf'))   
 
-       """attention = (q @ k.transpose(-2,-1))* (1.0 / math.sqrt(k.size(-1)))
-       #diagonal mask
-       #fill 0 mask with super small numbers so it won't affect softmax
-       attention = attention.masked_fill(self.mask[:,:,:T,:T] == 0, float('-inf'))
-       attention = F.softmax(attention, dim = 1)
-       attention = self.attention_dropout(attention)
+       #apply softmax to last dimension
+       attention_weights = F.softmax(masked_attention, dim=-1)       
 
-       y = attention @ v"""
+       #dropout of attention weights
+       attention_weights = self.attention_dropout(attention_weights)
 
-       y = y.transpose(1,2).contiguous().view(B,T,C)
+       #compute attention weights * values = output
+       output = attention_weights @ v
 
-       y = self.residual_dropout(self.c_projection(y))
+       #recombine heads back to single vector
+       output = output.transpose(1,2).contiguous().view(B,T,C)
 
-       return y
+       #output projections and residual dropout
+       output = self.residual_dropout(self.c_projection(output))
+       
+       return output
 
