@@ -91,6 +91,7 @@ class GPT(nn.Module):
             sampling (boolean): boolean controlling whether next token is sampled from distribution or argmax
             top_k (int): if not None, only top k tokens are used in sampling
         """
+        self.eval()
         for _ in range(max_new_tokens):
             # cut off at block-size
             cropped_idx = idx if idx.size(1) <= self.block_size else idx[:, -self.block_size:]

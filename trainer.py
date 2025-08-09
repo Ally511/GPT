@@ -19,6 +19,7 @@ class Trainer:
 
         # set the model to training mode for Dropout etc.
         self.model.train()
+        losses = []
 
         for epoch in range(epochs):
             print(f"Epoch {epoch + 1}/{epochs}")
@@ -33,10 +34,15 @@ class Trainer:
 
                 # forward step, returns the logits and the loss since we are passing targets
                 logits, loss = self.model(xb, yb)
+                losses.append(float(loss.detach()))
 
                 # do the backward step
-                self.model.zero_grad()
+                # self.model.zero_grad()
+                self.optimizer.zero_grad()
                 loss.backward()
                 self.optimizer.step()
-
-                progress_bar.set_postfix(loss=loss.item())
+                val_loss = loss.item()
+                # tqdm.write(f"Loss: {val_loss:.4f}")
+                progress_bar.set_postfix(loss=val_loss)
+                progress_bar.update(1)
+        return losses
