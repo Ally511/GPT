@@ -3,3 +3,4 @@ friends_episodes
 tokenizer_performance.py
 corpora/friends.txt
 .idea
+__pycache__/
