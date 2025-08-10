@@ -48,16 +48,16 @@ our_gpt = GPT(config=config, device=device)
 
 
 
-our_trainer = Trainer(our_gpt, train_dataset, device)
+our_trainer = Trainer(our_gpt, train_dataset, vocab, device)
 epochs = 1
-train_steps = 10
+train_steps = 25
 
 # xbatch, _ = get_batch(train_dataset, 1, 128)
 #
 # xbatch = torch.tensor(xbatch, dtype=torch.long, device=device)
 xbatch = torch.tensor([[0]], dtype=torch.long).to(device)
 loss = our_trainer.run(epochs, train_steps, config.batch_size, config.block_size)
-generated = our_gpt.generate(xbatch, 10, 0.8, True, 20)
+generated = our_gpt.generate(xbatch, 100, 0.8, True, 20)
 generated = generated[0].tolist()
 decoded = decode_characters(generated, vocab)
 print(decoded)
