@@ -9,7 +9,7 @@ This can easily be achieved by using different Unix commands, as demonstrated in
 ```bash
 tr -sc 'A-Za-z' '\n' < corpora/clean_shakespeare.txt |head
 ```
-With this line, everything that is not an uppercase or lowercase letter is removed and substituted by a new line, resulting in the following output:
+With this line, everything that is not an uppercase or lowercase letter (identified via `-c` meaning complement) is squeezed together (via the flag `s`) and substituted by a new line, resulting in the following output:
 ![img.png](unix_tokenization/unix_command1.png)
 To sort the output by alphabet, the command can be easily extended by a `sort` pipe: 
 ```bash
@@ -34,10 +34,10 @@ This pipeline results in the following output:
 ![img.png](unix_tokenization/unix_command4.png)
 
 From this, we can identify two problems.
-First, as we can see for the token "I", we still have a mixture of uppercase and lowercase letters. Still, it is not advisable to treat the tokens "the" and "The" differently.
+First, as we can see for the token "I", we still have a mixture of uppercase and lowercase letters, while we aim to have a case-insensitive tokenization.
 This is easily fixed by adjusting the pipeline to merge upper- and lowercase letters.
 ````bash
-tr 'A-Z' 'a-z' < clean_shakespeare.txt | tr -sc 'a-z' '\n' | sort | uniq -c | sort -nr | head
+tr 'A-Z' 'a-z' < clean_shakespeare.txt | tr -sc 'A-Za-z' '\n' | sort | uniq -c | sort -nr | head
 ````
 Here we can see, that the problem is now solved:
 ![img.png](unix_tokenization/unix_command5.png)
