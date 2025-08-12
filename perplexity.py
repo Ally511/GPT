@@ -1,4 +1,5 @@
-import generator.to_byte_pair
+#import generator.to_byte_pair
+from generator import to_byte_pair
 
 # load the test text 
 with open('test.txt', 'r') as file:
@@ -19,7 +20,8 @@ def perplexity(text, ngram, dict_tokens, vocab):
     Returns:
         float: Perplexity value of the input text.
     """
-    text = generator.to_byte_pair.to_byte_pair(text,vocab)
+    #text = generator.to_byte_pair.to_byte_pair(text,vocab)
+    text = to_byte_pair(text,vocab)
     n = ngram.ndim  # order of the n-gram model
     
     prob_total = 1.0

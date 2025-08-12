@@ -18,6 +18,10 @@ class N_gram:
     self.split_text = self.split_ngrams(corpus)
     self.n_gram_probs = self.calculate_n_gram_probs(self.split_text)
 
+    #1e-8 floor for truly unseen unigrams:
+    self.floor = 1e-8
+
+
 
 
   def get_unigram_probs(self, corpus):
@@ -72,8 +76,55 @@ class N_gram:
 
 
     return n_gram_probs
+    
+  def _backoff_prob(self, context, token):
+    """
+    Recursively back off from the full (n-1)-gram context down
+    to unigram.  This mirrors exactly your `backoff(...)` in generate(),
+    except it returns a probability instead of a sampled token.
+    """
+    # 1) If we're at the top order (len(context)==n-1), try to use it
+    if len(context) == self.ndim - 1:
+      dist = self.n_gram_probs.get(tuple(context))
+      if dist is not None:
+        # seen this context
+        return dist.get(token, 0.0)    # if token unseen under this context, prob=0 here
+
+    # 2) If we can still back off (i.e. n>1), drop the first item in context
+    if len(context) > 0:
+      return self._backoff_prob(context[1:], token)
+
+    # 3) Finally back off to unigram
+    return self.unigram_probs.get(token, self.floor)
 
   def perplexity(self, split_text):
+    """
+    Compute PP = exp{-1/M ∑_i log P(w_i | context_i)} using
+    exactly the same backoff-probabilities as generate().
+    """
+    log_prob = 0.0
+    M = 0
+    n = self.ndim
+
+    for i in range(len(split_text) - n + 1):
+      ctx = split_text[i : i + n - 1]
+      w   = split_text[i + n - 1]
+
+      p = self._backoff_prob(ctx, w)
+      # if p is zero (never seen at any order, even unigram), floor it  
+      if p == 0.0:
+        p = self.floor
+
+      log_prob += math.log(p)
+      M += 1
+
+    avg_ll = log_prob / M
+    pp = math.exp(-avg_ll)
+    print(f"Perplexity: {pp:.2f}")
+    return pp
+
+  def old_perplexity(self, split_text):
+    
     """
     Calculate perplexity of a given text based on an n-gram model.
 
@@ -97,6 +148,7 @@ class N_gram:
       count += 1
 
     # Calculate total probability in log space to avoid floating point underflow
+    #dividing by amount of n-gram predictions made, could also divide by len(tokens)
     avg_log_prob = log_prob_sum / count
     # Exponentiate at the end to get the real perplexity.
     perplexity = math.exp(-avg_log_prob)
