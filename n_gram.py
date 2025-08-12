@@ -22,8 +22,6 @@ class N_gram:
     self.floor = 1e-8
 
 
-
-
   def get_unigram_probs(self, corpus):
     """
     Pass corpus (already to byte-pair) and get unigram probs.
@@ -153,5 +151,5 @@ class N_gram:
     # Exponentiate at the end to get the real perplexity.
     perplexity = math.exp(-avg_log_prob)
 
-    print(f"Perplexity: {perplexity}")
+    print(f"Old perplexity: {perplexity}")
     return perplexity
