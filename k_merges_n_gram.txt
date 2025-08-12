@@ -1,0 +1,1 @@
+['best k:', 181, 'best n gram', 4, 'best k perplexity:', 1.7733073878471268, '2nd best k:', 161, '2nd best n gram', 4, '2nd best k perplexity:', 1.8372182962932309, '3rd best k:', 141, '3rd best n gram', 4, '3rd best k perplexity:', 1.9387770631199486]

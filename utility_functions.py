@@ -16,6 +16,7 @@ import tiktoken
 import numpy as np
 from itertools import islice
 from n_gram import N_gram
+from generator import to_byte_pair
 
 def get_words(text):
     """
@@ -208,4 +209,17 @@ def decode_characters(input, vocab_train):
     decoded = ''.join(decoded)
     decoded = decoded.replace('_', ' ')
     return decoded
+
+
+def find_top_indices(list, n):
+    # Create a copy of the list
+    sorted_lst = list.copy()
+    
+    # Sort the list in descending order
+    sorted_lst.sort(reverse=False)
+    
+    # Get the indices of the top N values
+    top_indices = [list.index(value) for value in sorted_lst[:n]]
+    
+    return top_indices
 
