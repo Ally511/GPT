@@ -38,7 +38,6 @@ class N_gram:
     # want to split this into the maximum possible length
     # why am I not passing the vocabulary?
     n = self.ndim
-    print(type(corpus))
     split_text = []
     for i in range(len(corpus) - n + 1):
       

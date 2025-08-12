@@ -7,7 +7,8 @@ from collections import defaultdict
 from collections import OrderedDict
 from collections import Counter
 
-from utility_functions import performance
+from utility_functions import performance,find_top_indices,generate_n_grams
+from generator import to_byte_pair
 
 def bpe(dictionary, k):
   """
@@ -101,3 +102,39 @@ def bpe(dictionary, k):
           iteration = False
 
   return vocab_bpe, sorted_token_freq, dict_matrix
+
+
+def get_best_merges(dict,text,max_k,step):
+
+    ks = []
+    n_grams = []
+    perplexities = []
+
+    for k in range (1,max_k,step):
+        vocab_valid, sorted_token_freq_valid, dict_matrix_valid = bpe(dict,k)
+        n_gram_test = to_byte_pair(text, vocab_valid)
+        our_n_grams_test = generate_n_grams(n_gram_test,4)
+        n_gram_num = 0
+
+        for n_gram in our_n_grams_test:
+            perplexity = n_gram.perplexity(n_gram_test)
+            n_gram_num += 1
+            perplexities.append(perplexity)
+            ks.append(k)
+            n_grams.append(n_gram_num)
+
+    top_indices = find_top_indices(perplexities, 3)
+    
+    best_k = ks[top_indices[0]]
+    best_perplexity = perplexities[top_indices[0]]
+    best_n_gram = n_grams[top_indices[0]]
+
+    second_best_k = ks[top_indices[1]]
+    second_best_perplexity = perplexities[top_indices[1]]    
+    second_best_n_gram = n_grams[top_indices[1]]
+
+    third_best_k = ks[top_indices[2]]
+    third_best_perplexity = perplexities[top_indices[2]]
+    third_best_n_gram = n_grams[top_indices[1]]
+
+    return best_k,best_perplexity,best_n_gram,second_best_k,second_best_perplexity,second_best_n_gram,third_best_k,third_best_perplexity,third_best_n_gram
