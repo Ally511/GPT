@@ -59,7 +59,7 @@ EPOCH = 2
 TOTAL_EPOCHS = 10
 LOSS = None   # not used initially
 
-inputs, loss = model.forward_annealed(idx, EPOCH, LOSS, TOTAL_EPOCHS, targets, temp=1.0, sampling=True)
+inputs, loss = model.forward_annealed(idx, EPOCH, TOTAL_EPOCHS, targets, temp=1.0, sampling=True)
 
 print("\nFinal inputs shape:", type(inputs), len(inputs) if isinstance(inputs, list) else inputs.shape)
 if loss is not None:

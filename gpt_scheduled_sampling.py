@@ -92,17 +92,15 @@ class GPT(nn.Module):
         ep_prob = k / (k + np.exp(ep/k))
         return ep_prob
     
-    def forward_annealed(self, idx, epoch, loss, total_train_epochs, targets=None, temp=1.0, sampling=False, top_k=None):
+    def forward_annealed(self, idx, epoch, total_train_epochs, targets=None, temp=1.0, sampling=False, top_k=None):
         device = self.device
 
         teacher_prob = self.anneal_teacher(epoch, total_train_epochs)
-        print(f"Teacher annealing. Current probability: {teacher_prob}")
         batch_size, chunk_size = idx.size()
         assert chunk_size <= self.block_size, f"Sequence length of {chunk_size} exceeds block size {self.block_size}."
         
         loss = None
         inputs = idx[:, :1] # get start tokens for batch from idx, after shape (B,1)
-        print(f"Shape inputs: {inputs.shape}, input: {inputs}")
         for t in range(chunk_size):
             logits, _ = self(inputs)
 
@@ -134,8 +132,6 @@ class GPT(nn.Module):
             use_teacher = th.rand(batch_size, 1, device=device) < teacher_prob
             next = th.where(use_teacher, teacher_tokens, student_tokens)
             concat_inputs = th.cat([inputs, next], dim=1)  # inputs stays a tensor of size (B, curr_seq)
-            print(f"Shape check: Student tokens {student_tokens.shape}, teacher tokens{teacher_tokens.shape}, next: {next.shape}")
-            print(f"\n Concatenated inputs: {concat_inputs.shape}, inputs: {inputs.shape}")
             
         return concat_inputs, loss
 
