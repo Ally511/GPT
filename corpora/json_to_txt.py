@@ -1,3 +1,17 @@
+"""
+This script aggregates transcripts from multiple Friends episode JSON files
+into a single text file.
+
+Functionality:
+1. Reads all `.json` files from the `friends_episodes/` directory.
+2. Iterates through each episode, scene, and utterance in the dataset.
+3. Extracts:
+    - `speakers`: joined by commas if multiple speakers are present.
+    - `transcript`: the spoken line.
+4. Formats each entry as: "<speakers>\t<transcript>".
+5. Writes all lines to a single output file (`all_transcripts.txt`).
+
+"""
 import json
 import glob
 

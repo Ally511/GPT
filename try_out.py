@@ -1,5 +1,6 @@
 import torch
-from gpt import GPT
+# from gpt import GPT
+from gpt_scheduled_sampling import GPT
 from trainer import Trainer
 from utility_functions import get_batch, decode_characters
 import ast
@@ -50,7 +51,7 @@ our_gpt = GPT(config=config, device=device)
 
 our_trainer = Trainer(our_gpt, train_dataset, vocab, device)
 epochs = 1
-train_steps = 25
+train_steps = 6500
 
 # xbatch, _ = get_batch(train_dataset, 1, 128)
 #
@@ -67,10 +68,10 @@ plt.plot(y, loss)
 plt.xlabel('Training Steps')
 plt.ylabel('Loss')
 plt.title('Loss of the GPT Model over Time')
-plt.savefig('loss.png')
+plt.savefig('loss_scheduled sampling.png')
 plt.show()
 
-with open('output.txt', 'w') as f:
+with open('output_scheduled_sampling.txt', 'w') as f:
     f.write(decoded)
 
 
