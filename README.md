@@ -127,11 +127,11 @@ There are a decent number of parameters and hyperparameters involved in the mode
 | 12 | 4.07   |  5.59  |
 
 * seq_size (how long the sequences are)
-| size| loss | val_loss |
-|---|---|---|
-| 32  | 4.05   |  6.13  |
-| 64  | 4.08   |  5.51  |
-| 128  | 4.06   |  5.54  |
+| size | loss | val_loss |
+|------|------|----------|
+| 32   | 4.05 | 6.13     |
+| 64   | 4.08 | 5.51     |
+| 128  | 4.06 | 5.54     |
 
 * training loss, validation loss - the perfromance of the model on the training / validation set 
 * perplexity
