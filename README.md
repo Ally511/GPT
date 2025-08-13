@@ -108,6 +108,7 @@ The saved embeddings can then in turn be loaded and used to generate text. For t
 There are a decent number of parameters and hyperparameters involved in the model, namely: 
 * training_steps (how long the model should be trained) - modified implicitly by the early stopping
 * validation_steps (after how many steps the performance of the model should be checked)
+
 | steps| loss | val_loss |
 |-----|-------|----------|
 | 100 | 4.07  |  5.64  |
@@ -115,18 +116,21 @@ There are a decent number of parameters and hyperparameters involved in the mode
 | 500 | 4.09  |  5.51  |
 
 * patience (after how many checks with no imporvemnt the training should be cancled)
+
 | pat| loss | val_loss |
 |---|---|---|
 | 2 | 4.14  |  5.39  |
 | 5 | 4.07  |  5.58  |
 
 * block_size (how many sequences are passed in each pass)
+
 | size| loss | val_loss |
 |---|---|---|
 | 8  | 4.06   |  5.69  |
 | 12 | 4.07   |  5.59  |
 
 * seq_size (how long the sequences are)
+
 | size | loss | val_loss |
 |------|------|----------|
 | 32   | 4.05 | 6.13     |
