@@ -12,11 +12,12 @@ import math
 
 class N_gram:
 
-  def __init__(self, corpus, n):
+  def __init__(self, corpus, n, vocab_size=15000):
     self.ndim = n
     self.unigram_probs = self.get_unigram_probs(corpus)
     self.split_text = self.split_ngrams(corpus)
     self.n_gram_probs = self.calculate_n_gram_probs(self.split_text)
+    self.vocab_size = vocab_size
 
 
 
@@ -26,7 +27,8 @@ class N_gram:
     """
     c = Counter(corpus)
     total = sum(c.values())
-    unigram_probs = {token: count / total for token, count in c.items()} # is that normalised the way we want it
+    # add count of 1 for Laplace Smoothing
+    unigram_probs = {token: count+1 / total+self.vocab_size for token, count in c.items()} # is that normalised the way we want it
     return unigram_probs
 
 
@@ -68,8 +70,8 @@ class N_gram:
 
     for prefix, target_counts in n_gram_counts.items():
       total = float(sum(target_counts.values()))
-      n_gram_probs[prefix] = {token: count / total for token, count in target_counts.items()}
-
+      # add count of 1 for Laplace Smoothing
+      n_gram_probs[prefix] = {token: count +1/ total+self.vocab_size for token, count in target_counts.items()}
 
     return n_gram_probs
 
