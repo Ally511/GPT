@@ -1,1 +1,18 @@
-['best k:', 181, 'best n gram', 4, 'best k perplexity:', 1.7733073878471268, '2nd best k:', 161, '2nd best n gram', 4, '2nd best k perplexity:', 1.8372182962932309, '3rd best k:', 141, '3rd best n gram', 4, '3rd best k perplexity:', 1.9387770631199486]
+best k:
+1
+best n gram
+4
+best k perplexity:
+5.487677602860113
+2nd best k:
+1
+2nd best n gram
+3
+2nd best k perplexity:
+7.223670051839622
+3rd best k:
+1
+3rd best n gram
+2
+3rd best k perplexity:
+11.468694365541726
