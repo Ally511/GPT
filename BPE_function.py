@@ -103,9 +103,10 @@ def get_best_merges(dict_train, text_train, dict_valid,text_valid,max_k,step):
     vocab_train, sorted_token_freq_train, dict_matrix_train = bpe(dict_train,k)
     n_gram_train = to_byte_pair(text_train, vocab_train)
     vocab_valid, sorted_token_freq_valid, dict_matrix_valid = bpe(dict_valid,k)
-    n_gram_valid = to_byte_pair(text_valid, vocab_valid)
+    # changed this to vocab_valid since we want to see how well the ngram performs on the train vocab
+    n_gram_valid = to_byte_pair(text_valid, vocab_train)
 
-    our_n_grams_valid = generate_n_grams(n_gram_train,4)
+    our_n_grams_valid = generate_n_grams(n_gram_train,4, len(vocab_train))
     n_gram_num = 0
 
     for n_gram in our_n_grams_valid:

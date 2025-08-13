@@ -51,7 +51,7 @@ def get_words(text):
 
     return sorted_dict
 
-def generate_n_grams(n_gram_corpus, n):
+def generate_n_grams(n_gram_corpus, n, vocab_size):
     """
     Generates up to n n-grams from the given corpus.
     For each n from 1 to 'n', creates an N-gram object using the provided corpus.
@@ -64,7 +64,7 @@ def generate_n_grams(n_gram_corpus, n):
     """
     list_of_n_grams = []
     for i in range (0,n):
-        list_of_n_grams.append(N_gram(n_gram_corpus, i+1))
+        list_of_n_grams.append(N_gram(n_gram_corpus, i+1, vocab_size))
 
     return list_of_n_grams
         
