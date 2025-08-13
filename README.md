@@ -116,19 +116,19 @@ There are a decent number of parameters and hyperparameters involved in the mode
 
 * patience (after how many checks with no imporvemnt the training should be cancled)
 | pat| loss | val_loss |
-|-----|-------|----------|
+|---|---|---|
 | 2 | 4.14  |  5.39  |
 | 5 | 4.07  |  5.58  |
 
 * block_size (how many sequences are passed in each pass)
 | size| loss | val_loss |
-|-----|------|--------|
+|---|---|---|
 | 8  | 4.06   |  5.69  |
 | 12 | 4.07   |  5.59  |
 
 * seq_size (how long the sequences are)
 | size| loss | val_loss |
-|-----|------|--------|
+|---|---|---|
 | 32  | 4.05   |  6.13  |
 | 64  | 4.08   |  5.51  |
 | 128  | 4.06   |  5.54  |
