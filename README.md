@@ -47,6 +47,26 @@ For more complex models, more sophisticated algorithms, like Byte-Pair Encoding,
 
 ## Milestone 1: Byte-Pair Encoding
 
+The Byte Pair Encoding Milestone is composed of the following parts:
+
+* getting unique characters from the corpus
+* applying our BPE function 
+* checking for accuracy
+* comparing byte pairs from our encoding to another model's encoding
+* evaluating a different corpora's accuracy with our an a diffent model's byte pair encoding 
+
+### Getting unique characters from the corpus
+We retreive all unique characters from the corpus by applying our get_words function, which uses a regular expression tokenizer
+that also counts the occurence of each character and saves this into a dictionary.
+
+### Applying our BPE function
+We then utilize our self written BPE function, that takes the corpus text as well as the dictionary of vocabulary 
+and a certain number of k merges. The BPE function searches for the most common occurence of a token following another and then merges these tokens into a new token and appends the new token to the vocabulary. It returns the new vocabulary after k merges, a sorten token frequency and a dictionary matrix. In order to get the best three merges, we applied the BPE function with 1 to 2001 merges in steps of 100 to our training set, created a uni-, a bi- a tri- and a fourgram for each k and evaluated their perplexity, then saved the k and the kind of n-gram for the top three best perplexities. Furthermore we used those top three best merges to split our training, validation and test corpus into byte pairs using our to_byte_pair function that applies the vocabulary retrieved from the BPE function and splits the corpus accordingly. 
+
+### Checking for Accuracy
+
+
+
 ## Milestone 2: A Simple N-Gram
 
 ## Milestone 3: The Neural N-Gram

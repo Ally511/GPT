@@ -19,7 +19,6 @@ def bpe(dictionary, k):
     sorted_token_freq:
     dict_matrix:
   """
-
   # get all unique characters in original corpus
   all_keys = "_ ".join(dictionary.keys())
   vocab_bpe = list(set(all_keys))
@@ -31,26 +30,22 @@ def bpe(dictionary, k):
     new_key = list(f"{str(key)}_ ")
     dict_matrix.append([new_key, value])
 
-
   # NICHT corpus, sondern liste an Wörtern in einzelne tokens splitten,
   # >> jede occurence mit counts der Worte multiplizieren
-
-
-  token_freq = defaultdict(int) # TODO: does that need to be moved outside of the loop?
+  #token_freq = defaultdict(int) # TODO: does that need to be moved outside of the loop?
   iteration = True
   num_rounds = 0
   while iteration:
-
+    token_freq = defaultdict(int) # ACHTUNG: moved this inside again
     for token_list, value in dict_matrix:
       for i in range(len(token_list)-2):
         # wollen den und den nächsten token als key
         search_key = token_list[i] + token_list[i+1]
         # zu dictionary hinzufügen falls key noch nicht existiert
         token_freq[search_key] += value
+
     # word_freqs: gehen jede existierende Folge aus zwei tokens in list of words von vorne bis hinten durch
-
     c = Counter(token_freq)
-
     sorted_token_freq = {key: value for key, value in sorted(
         c.items(), key=lambda item: item[1], reverse=True)}
 
@@ -67,12 +62,6 @@ def bpe(dictionary, k):
     else:
       print("No new token to add.")
 
-    # höchster count wird gemerged:
-    # add to vocab
-    #first_token = list(sorted_token_freq.keys())[0]
-    #vocab_bpe.append(first_token)
-    # replace in list of words
-    # start again?
     for i in range(len(dict_matrix)):
         token_list, value = dict_matrix[i]
         j = 0
@@ -93,48 +82,59 @@ def bpe(dictionary, k):
     else:
        num_rounds += 1
        accuracy = performance(dictionary, vocab_bpe, 500)
-       iteration != (accuracy > 70)
+       if accuracy > 70: # ACHTUNG: changed this line
+          iteration = False
+       #iteration != (accuracy > 70)
 
        if num_rounds > 1500:
           print("exceeded, accuracy: ", accuracy)
-
-
           iteration = False
 
   return vocab_bpe, sorted_token_freq, dict_matrix
 
 
-def get_best_merges(dict,text,max_k,step):
+def get_best_merges(dict_train, text_train, dict_valid,text_valid,max_k,step):
 
-    ks = []
-    n_grams = []
-    perplexities = []
+  ks = []
+  n_grams = []
+  perplexities = []
 
-    for k in range (1,max_k,step):
-        vocab_valid, sorted_token_freq_valid, dict_matrix_valid = bpe(dict,k)
-        n_gram_test = to_byte_pair(text, vocab_valid)
-        our_n_grams_test = generate_n_grams(n_gram_test,4)
-        n_gram_num = 0
+  for k in range (1,max_k,step):
+    vocab_train, sorted_token_freq_train, dict_matrix_train = bpe(dict_train,k)
+    n_gram_train = to_byte_pair(text_train, vocab_train)
+    vocab_valid, sorted_token_freq_valid, dict_matrix_valid = bpe(dict_valid,k)
+    # changed this to vocab_valid since we want to see how well the ngram performs on the train vocab
+    n_gram_valid = to_byte_pair(text_valid, vocab_train)
 
-        for n_gram in our_n_grams_test:
-            perplexity = n_gram.perplexity(n_gram_test)
-            n_gram_num += 1
-            perplexities.append(perplexity)
-            ks.append(k)
-            n_grams.append(n_gram_num)
+    our_n_grams_valid = generate_n_grams(n_gram_train,4, len(vocab_train))
+    n_gram_num = 0
 
-    top_indices = find_top_indices(perplexities, 3)
-    
-    best_k = ks[top_indices[0]]
-    best_perplexity = perplexities[top_indices[0]]
-    best_n_gram = n_grams[top_indices[0]]
+    for n_gram in our_n_grams_valid:
+      n_gram_num += 1
+      print(f"N-gram split for {n_gram_num}-gram, k = {k}: {n_gram.split_text[:10]}")
+      n_gram.old_perplexity(n_gram_valid)
+      perplexity = n_gram.perplexity(n_gram_valid)
+      perplexities.append(perplexity)
+      ks.append(k)
+      n_grams.append(n_gram_num)
 
-    second_best_k = ks[top_indices[1]]
-    second_best_perplexity = perplexities[top_indices[1]]    
-    second_best_n_gram = n_grams[top_indices[1]]
+  top_indices = find_top_indices(perplexities, 3)
+  
+  """out   = []
+  for ix in top_indices:
+    out.extend((ks[ix], perplexities[ix], ngrams[ix]))
+  return tuple(out)  # (k1,p1,n1, k2,p2,n2, k3,p3,n3)"""
+  
+  best_k = ks[top_indices[0]]
+  best_perplexity = perplexities[top_indices[0]]
+  best_n_gram = n_grams[top_indices[0]]
 
-    third_best_k = ks[top_indices[2]]
-    third_best_perplexity = perplexities[top_indices[2]]
-    third_best_n_gram = n_grams[top_indices[1]]
+  second_best_k = ks[top_indices[1]]
+  second_best_perplexity = perplexities[top_indices[1]]    
+  second_best_n_gram = n_grams[top_indices[1]]
 
-    return best_k,best_perplexity,best_n_gram,second_best_k,second_best_perplexity,second_best_n_gram,third_best_k,third_best_perplexity,third_best_n_gram
+  third_best_k = ks[top_indices[2]]
+  third_best_perplexity = perplexities[top_indices[2]]
+  third_best_n_gram = n_grams[top_indices[2]]
+
+  return best_k,best_perplexity,best_n_gram,second_best_k,second_best_perplexity,second_best_n_gram,third_best_k,third_best_perplexity,third_best_n_gram

@@ -12,16 +12,16 @@ import math
 
 class N_gram:
 
-  def __init__(self, corpus, n):
+  def __init__(self, corpus, n, vocab_size):
     self.ndim = n
-    self.unigram_probs = self.get_unigram_probs(corpus)
+    self.vocab_size = vocab_size
+    self.unigram_probs, self.counter = self.get_unigram_probs(corpus)
     self.split_text = self.split_ngrams(corpus)
     self.n_gram_probs = self.calculate_n_gram_probs(self.split_text)
 
+
     #1e-8 floor for truly unseen unigrams:
     self.floor = 1e-8
-
-
 
 
   def get_unigram_probs(self, corpus):
@@ -30,8 +30,9 @@ class N_gram:
     """
     c = Counter(corpus)
     total = sum(c.values())
-    unigram_probs = {token: count / total for token, count in c.items()} # is that normalised the way we want it
-    return unigram_probs
+    # add count of 1 for Laplace Smoothing
+    unigram_probs = {token: (count+1) / (total+self.vocab_size) for token, count in c.items()} # is that normalised the way we want it
+    return unigram_probs, c
 
 
   def split_ngrams(self, corpus):
@@ -72,8 +73,8 @@ class N_gram:
 
     for prefix, target_counts in n_gram_counts.items():
       total = float(sum(target_counts.values()))
-      n_gram_probs[prefix] = {token: count / total for token, count in target_counts.items()}
-
+      # add count of 1 for Laplace Smoothing
+      n_gram_probs[prefix] = {token: (count +1)/ (total+self.vocab_size) for token, count in target_counts.items()}
 
     return n_gram_probs
     
@@ -88,7 +89,7 @@ class N_gram:
       dist = self.n_gram_probs.get(tuple(context))
       if dist is not None:
         # seen this context
-        return dist.get(token, 0.0)    # if token unseen under this context, prob=0 here
+        return dist.get(token, 1/(self.counter[token]+self.vocab_size))    # if token unseen under this context, prob=0 here
 
     # 2) If we can still back off (i.e. n>1), drop the first item in context
     if len(context) > 0:
@@ -153,5 +154,5 @@ class N_gram:
     # Exponentiate at the end to get the real perplexity.
     perplexity = math.exp(-avg_log_prob)
 
-    print(f"Perplexity: {perplexity}")
+    print(f"Old perplexity: {perplexity}")
     return perplexity
