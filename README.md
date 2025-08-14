@@ -191,6 +191,13 @@ MLP:
 
 #### Training
 
+In training, we go through several `trainsteps`. In each trainstep, we use the given vocabulary to generate two batches of the shape $(batch\_size, chunk\_size)$.
+One is the input batch, that is fed through the GPT model, the other is the target batch. The target batch contains the same sequence as the input batch, only shifted by one, so having the token that directly follows the input token at the same index.
+The input batch is then used to generate the model's output, which is then compared to the target sequence. We use `Categorical Cross entropy` to calculate the resulting loss. This error signal is then propagated through the network via the `AdamW` optimizer.
+The optimizer uses different learning rates for each parameter and is therefore particularly suited for this task. 
+For extrinsic evaluation, we the generate a text with the trained model to calculate its perplexity. The text is also decoded for subjective evaluation.
+
+
 #### Results
 
 ## Comparison
