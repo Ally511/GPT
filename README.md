@@ -139,6 +139,7 @@ There are a decent number of parameters and hyperparameters involved in the mode
 |---|---|---|
 | 8  | 4.06   |  5.69  |
 | 12 | 4.07   |  5.59  |
+| 32 | 4.08   |  5.42  |
 
 * seq_size (how long the sequences are)
 
@@ -148,7 +149,13 @@ There are a decent number of parameters and hyperparameters involved in the mode
 | 64   | 4.08 | 5.51     |
 | 128  | 4.06 | 5.54     |
 
+As we can see here, non of the paramets have a huge influence on the training result. Based on this limited testing, we settled on: 
+sequ_size = 64, block_size = 12, steps = 100, patience = 2
+
 * training loss, validation loss - the perfromance of the model on the training / validation set 
+The loss of the model looks like expected: 
+![img.png](img/loss.png)
+
 * perplexity
 
  #### Output
