@@ -158,4 +158,14 @@ There are a decent number of parameters and hyperparameters involved in the mode
 
 ## Milestone 4: A Simple GPT Model
 
+#### Causal Self-Attention
 
+#### The Decoder Block
+
+#### The GPT model
+
+#### Training
+
+### Results
+
+### Comparison
