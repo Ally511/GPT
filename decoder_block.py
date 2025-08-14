@@ -27,7 +27,7 @@ class Block(nn.Module):
 
         # residual connections
         x = x + self.attention(self.layer_norm1(x))
-        x = x + self.mlp_forward(x)
+        x = x + self.mlp_forward(self.layer_norm2(x))
 
         return x
 

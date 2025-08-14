@@ -1,7 +1,5 @@
 # Building GPT from Scratch: Course Report
 
-## Introduction (?)
-
 ## Milestone 0 : Simple Tokenization with Unix
 In Natural Language Processing (NLP), one first step is to tokenize a given text into different tokens. These tokens then serve as a basis for the vocabulary and other processes. 
 Tokenization can be more or less sophisticated. A very simple way is to just remove punctuation and use spaces as an indicator for separation of tokens. 
@@ -165,6 +163,23 @@ Then, we describe how the different building blocks come together in the GPT mod
 
 #### The Decoder Block
 
+Our implementation follows the classic architecture of transformer decoder blocks.
+Thus, two normalization layers are employed, the first is applied directly before feeding the input through the Causal Self-Attention layer while passing the different dropout rates (residual dropout and attention dropout).
+To prevent vanishing gradients, the original input is added to that result forming the first residual connection.
+The result is then forwarded to the second normalization layer and then through a basic MLP with two linear layers, with GeLU as activation function. GeLU addresses again the vanishing gradients problem which often occurs in GPT models.
+Here, we employ dropout again for better generalization. Last, we add another residual connection. 
+In total, this results in the following architecture:
+
+* $x = input$
+* $x' = Layer Normalization (x)$
+* $x' = CausalSelfAttention(x')$
+* $x = x' + x$
+
+MLP:
+* $x' = Linear(x)$ with $input\_dimension = embedding\_size$, $output\_dimension = 4* embedding\_size$
+* $x' = Linear2(x')$ with $input\_dimension = 4*embedding\_size$, $output\_dimension = embedding\_size$
+* $x' = Dropout(x')$
+* $x = x' + x$
 #### The GPT model
 
 #### Training
