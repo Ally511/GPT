@@ -157,7 +157,10 @@ There are a decent number of parameters and hyperparameters involved in the mode
 
 
 ## Milestone 4: A Simple GPT Model
-
+The last model we present is a simpler version of a GPT. For this model, we utilize again our predefined Byte-Pair Encoding,
+to ensure better comparability to the N-Gram and the Neural N-Gram. 
+In the following, we introduce some new concepts, namely Causal Self-Attention and Decoder Blocks.
+Then, we describe how the different building blocks come together in the GPT model and finally explain the training process and its results.
 #### Causal Self-Attention
 
 #### The Decoder Block
@@ -166,6 +169,6 @@ There are a decent number of parameters and hyperparameters involved in the mode
 
 #### Training
 
-### Results
+#### Results
 
-### Comparison
+## Comparison
