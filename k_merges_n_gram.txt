@@ -1,18 +1,18 @@
 best k:
-1
+100
 best n gram
-4
-best k perplexity:
-5.86088194466428
-2nd best k:
-1
-2nd best n gram
 3
+best k perplexity:
+26.834415676951565
+2nd best k:
+100
+2nd best n gram
+2
 2nd best k perplexity:
-7.290482282188899
+30.479508530723734
 3rd best k:
-1
+200
 3rd best n gram
 2
 3rd best k perplexity:
-11.474898105891098
+41.84822791621113
