@@ -197,6 +197,7 @@ The input batch is then used to generate the model's output, which is then compa
 The optimizer uses different learning rates for each parameter and is therefore particularly suited for this task. 
 For extrinsic evaluation, we the generate a text with the trained model to calculate its perplexity. The text is also decoded for subjective evaluation.
 
+#### Hyperparameter Search
 
 #### Results
 
