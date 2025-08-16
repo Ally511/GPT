@@ -156,9 +156,9 @@ The loss of the model looks like expected:
 
 This observation is also mirrored in the embedding which changes from noise to patterns over the training intervals:
 <p float="left">
-  <img src="img/emb1.png" width="300" />
-  <img src="img/emb2.png" width="300" /> 
-  <img src="img/emb3.png" width="300" />
+  <img src="img/emb1.png" width="250" />
+  <img src="img/emb2.png" width="250" /> 
+  <img src="img/emb3.png" width="250" />
 </p>
 
 
