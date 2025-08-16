@@ -151,7 +151,7 @@ As we can see here, non of the paramets have a huge influence on the training re
 sequ_size = 64, block_size = 12, steps = 100, patience = 2
 
 * training loss, validation loss - the perfromance of the model on the training / validation set 
-The loss of the model looks like expected: 
+The loss of the model looks like expected, although it stagnates rather early which might be connected to the rather limited training corpus: 
 ![img.png](img/loss.png)
 
 This observation is also mirrored in the embedding which changes from noise to patterns over the training intervals:
@@ -162,11 +162,15 @@ This observation is also mirrored in the embedding which changes from noise to p
 </p>
 
 
-* perplexity
+* perplexity: As already mentioned in the previous n-gram, perplexity is a common tool to establish the performance of a language model. For our neural n-gram we have a perplexity of around 70, with our best model at 68.91. 
 
  #### Output
  Examples for outputs: 
+ "cleopatra , good brutus get ; bid  desdemona i will , , nor can he would aim of hadst cassius is it him tame , run on , unto his jewelling her he cannot find"
 
+"fire . exit thee : i urp's than any ? will get clear : if locks in destiness , ft of your prince ."
+
+"i have two ers , and most noble master ; but undged faith , whose love ? why thou counow , my compulgibesin death . . a tinent . venice , thou knee"
 
 
 ## Milestone 4: A Simple GPT Model
