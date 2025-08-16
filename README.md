@@ -86,14 +86,14 @@ The Neural N-Gram is composed of the following parts:
 * forward pass
 * backward pass
 * optimizer
-* generate fuction
+* generate function
 
 In training a step through the network functions as follows: 
 
-First the training function is called which is passed the number of training steps, as well as after how many steps the training progress should be evaluated. For every step we sample a batch of inputs and targets from the trokenized training version of the shakespeare corpus. With these the forward step is called
+First the training function is called which is passed the number of training steps, as well as after how many steps the training progress should be evaluated. For every step we sample a batch of inputs and targets from the tokenized training version of the shakespeare corpus. With these the forward step is called
 
 #### The forward pass
-The goal of the forward pass within training is to quantify the current performance of the embedding. Within the neuronal network, the embedding are the weights (of size vocab_size x vocab_size). From a higher-level perspective however, the embedding is a bigram word-cooccurance matrix that is modifed based on the input examples in traing. For this, the input is first reshaped into logits, changing their shape from batch, seq_len to batch, seq_len, vocab_size. Then we calculate and retrun both the logits and the softmaxed corssentropy loss between the input and the target. 
+The goal of the forward pass within training is to quantify the current performance of the embedding. Within the neuronal network, the embedding are the weights (of size vocab_size x vocab_size). From a higher-level perspective however, the embedding is a bigram word-co-occurance matrix that is modified based on the input examples in training. For this, the input is first reshaped into logits, changing their shape from batch, seq_len to batch, seq_len, vocab_size. Then we calculate and return both the logits and the softmaxed cross-entropy loss between the input and the target. 
 
 #### The backward pass
 Now that we have quantified the performance we have to modify the weights accordingly. For this we have to calculate the gradient. Luckly for us the gradient through the softmaxed crossentropy is just the softmaxed input minus the one-hot encoding of the targets. To then apply the errorsignal only to the relevant weights we matrix mutliply them with the transposed one-hot-encoding of the original input. 
@@ -102,16 +102,16 @@ Now that we have quantified the performance we have to modify the weights accord
 For the optimizer we use the the torch version of Adam, which is passed the gradients we calculated in the backward step. For this to work, we had to convert the embedding table into a torch tensor.
 
 #### The training
-To improve the efficency of the training we added some additional steps: 
+To improve the efficiency of the training we added some additional steps: 
 
 #### Early stopping
-Early stopping is a common partice to prevent overfitting and make sure the model is continously improving during the training process. For this, when building the corpus we spit it into two parts the training corpus 90% an the validation corpus 10%. During the training we collect the loss. Aver a predetimed number of steps (validation_steps) we average the loss on the training set and compare it to how the performance of the model on 1/10*validation_step iterations on the validation set. If the performance decreases on patience iterations of the validation dataset the training is terminated. 
+Early stopping is a common practice to prevent overfitting and make sure the model is continuously improving during the training process. For this, when building the corpus we spit it into two parts the training corpus 90% an the validation corpus 10%. During the training we collect the loss. Aver a predetermined number of steps (validation_steps) we average the loss on the training set and compare it to how the performance of the model on 1/10*validation_step iterations on the validation set. If the performance decreases on patience iterations of the validation dataset the training is terminated. 
 
 #### Saving the model
-As the model-parameters are contained within the embedding matrix the model can be easily saved and realoded. We automated this as follows: Whenever the file n_grams contains less than k (k=5) entries or if the performance of the current model is better than the worst performing model in the folder, the weights are saved.
+As the model-parameters are contained within the embedding matrix the model can be easily saved and reloaded. We automated this as follows: Whenever the file n_grams contains less than k (k=5) entries or if the performance of the current model is better than the worst performing model in the folder, the weights are saved.
 
 #### Generation
-The saved embeddings can then in turn be loaded and used to generate text. For this, a starting character and the desired text-length is passed to the generate function of the model. Tbe function then interativly retreivs the embedding for the current token in the sequence and using a multinomial function samples the following word from it. As the tokes are index numbers at this stakes they are run through a decoding function to convert them into strings. 
+The saved embeddings can then in turn be loaded and used to generate text. For this, a starting character and the desired text-length is passed to the generate function of the model. Tbe function then iteratively retrieves the embedding for the current token in the sequence and using a multinomial function samples the following word from it. As the tokes are index numbers at this stakes they are run through a decoding function to convert them into strings. 
 
 #### Parameter
 There are a decent number of parameters and hyperparameters involved in the model, namely: 
@@ -124,7 +124,7 @@ There are a decent number of parameters and hyperparameters involved in the mode
 | 250 | 4.04  |  6.35  |
 | 500 | 4.09  |  5.51  |
 
-* patience (after how many checks with no imporvemnt the training should be cancled)
+* patience (after how many checks with no improvement the training should be canceled)
 
 | pat| loss | val_loss |
 |---|---|---|
@@ -147,10 +147,10 @@ There are a decent number of parameters and hyperparameters involved in the mode
 | 64   | 4.08 | 5.51     |
 | 128  | 4.06 | 5.54     |
 
-As we can see here, non of the paramets have a huge influence on the training result. Based on this limited testing, we settled on: 
+As we can see here, non of the parameters have a huge influence on the training result. Based on this limited testing, we settled on: 
 sequ_size = 64, block_size = 12, steps = 100, patience = 2
 
-* training loss, validation loss - the perfromance of the model on the training / validation set 
+* training loss, validation loss - the performance of the model on the training / validation set 
 The loss of the model looks like expected, although it stagnates rather early which might be connected to the rather limited training corpus: 
 ![img.png](img/loss.png)
 
