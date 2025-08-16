@@ -56,6 +56,7 @@ class Trainer:
         # set the model to training mode for Dropout etc.
         self.model.train()
         losses = []
+        perplexities = []
 
         for epoch in range(epochs):
             print(f"Epoch {epoch + 1}/{epochs}")
@@ -81,6 +82,7 @@ class Trainer:
                 if self.val_dataset and train_step % 1000 == 0:
                     validation_loss = self.evaluate_loss(self.val_dataset, batch_size, chunk_size)
                     val_perplexity = np.exp(validation_loss)
+                    perplexities.append(val_perplexity)
                     print(f"Validation Loss: {validation_loss:.4f}, Perplexity: {val_perplexity:.2f}")
 
                 val_loss = loss.item()
@@ -92,7 +94,7 @@ class Trainer:
                     generated = generated[0].tolist()
                     decoded = decode_characters(generated, self.vocab)
                     print(decoded)
-        return losses
+        return losses, perplexities
     
     def evaluate_loss(self, dataset, batch_size, chunk_size, num_batches=50):
         # set model to evaluation mode
@@ -101,7 +103,9 @@ class Trainer:
         with torch.no_grad():
             for _ in range(num_batches):
                 xb, yb = get_batch(dataset, batch_size, chunk_size)
-                xb, yb = xb.to(self.device), yb.to(self.device)
+                xb = torch.from_numpy(xb)
+                yb = torch.from_numpy(yb)
+                xb, yb = xb.long().to(self.device), yb.long().to(self.device)
                 _, loss = self.model(xb, yb)
                 losses.append(loss.item())
         # set model to training mode again

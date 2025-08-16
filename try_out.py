@@ -39,7 +39,7 @@ with open('corpora/vocab_train.txt', 'r', encoding='utf-8') as f:
 with open('corpora/indices_text.txt', 'r') as f:
     train_dataset = f.read()
 
-with open('corpora/indices_text_val.txt', 'r') as f:
+with open('corpora/indices_text_valid.txt', 'r') as f:
     validation_set = f.read()
 
 
@@ -61,20 +61,16 @@ train_steps = 6500
 #
 # xbatch = torch.tensor(xbatch, dtype=torch.long, device=device)
 xbatch = torch.tensor([[0]], dtype=torch.long).to(device)
-loss = our_trainer.run(epochs, train_steps, config.batch_size, config.block_size)
+loss, perplexities = our_trainer.run(epochs, train_steps, config.batch_size, config.block_size)
 generated = our_gpt.generate(xbatch, 100, 0.8, True, 20)
 generated = generated[0].tolist()
 decoded = decode_characters(generated, vocab)
 print(decoded)
 
-# Might be all we need for perplexity
-losses = np.array(loss)
-perplexities = np.exp(losses)
-
 # Plot perplexity
 y = np.arange(1, len(perplexities)+1)
 plt.plot(y, perplexities)
-plt.xlabel('Training Steps')
+plt.xlabel('Training Steps % 1000')
 plt.ylabel('Perplexity')
 plt.title('Perplexity of the GPT Model over Time')
 plt.savefig('perplexity_scheduled_sampling.png')
