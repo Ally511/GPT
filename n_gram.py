@@ -20,10 +20,6 @@ class N_gram:
     self.n_gram_probs = self.calculate_n_gram_probs(self.split_text)
 
 
-    #1e-8 floor for truly unseen unigrams:
-    self.floor = 1e-8
-
-
   def get_unigram_probs(self, corpus):
     """
     Pass corpus (already to byte-pair) and get unigram probs.
@@ -78,7 +74,7 @@ class N_gram:
 
     return n_gram_probs
     
-  def _backoff_prob(self, context, token):
+  def backoff_prob(self, context, token):
     """
     Recursively back off from the full (n-1)-gram context down
     to unigram.  This mirrors exactly your `backoff(...)` in generate(),
@@ -98,7 +94,7 @@ class N_gram:
     # 3) Finally back off to unigram
     return self.unigram_probs.get(token, self.floor)
 
-  def perplexity(self, split_text):
+  def perplexity(self, split_text, floor = 1e-8):
     """
     Compute PP = exp{-1/M ∑_i log P(w_i | context_i)} using
     exactly the same backoff-probabilities as generate().
@@ -111,10 +107,10 @@ class N_gram:
       ctx = split_text[i : i + n - 1]
       w   = split_text[i + n - 1]
 
-      p = self._backoff_prob(ctx, w)
+      p = self.backoff_prob(ctx, w)
       # if p is zero (never seen at any order, even unigram), floor it  
       if p == 0.0:
-        p = self.floor
+        p = floor
 
       log_prob += math.log(p)
       M += 1

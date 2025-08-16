@@ -1,9 +1,9 @@
 """this file contains the Trainer class that handles the training loops for the GPT or any other PyTorch model"""
-
+import numpy as np
 import torch
 from tqdm import tqdm
 from utility_functions import get_batch, decode_characters
-
+# ACHTUNG: added val_dataset to init
 
 class Trainer:
     """
@@ -13,7 +13,7 @@ class Trainer:
         including dataset batching, forward/backward passes, and optimizer steps.
     """
 
-    def __init__(self, model, train_dataset, vocab, device):
+    def __init__(self, model, train_dataset, vocab, device, val_dataset=None):
         """
             Initialize the Trainer.
 
@@ -28,6 +28,8 @@ class Trainer:
         self.vocab = vocab
         self.device = device
         self.model = self.model.to(self.device)
+
+        self.val_dataset = val_dataset
 
 
     def run(self, epochs, train_steps, batch_size, chunk_size):
@@ -75,6 +77,12 @@ class Trainer:
                 self.optimizer.zero_grad()
                 loss.backward()
                 self.optimizer.step()
+
+                if self.val_dataset and train_step % 1000 == 0:
+                    validation_loss = self.evaluate_loss(self.val_dataset, batch_size, chunk_size)
+                    val_perplexity = np.exp(validation_loss)
+                    print(f"Validation Loss: {validation_loss:.4f}, Perplexity: {val_perplexity:.2f}")
+
                 val_loss = loss.item()
                 # tqdm.write(f"Loss: {val_loss:.4f}")
                 progress_bar.set_postfix(loss=val_loss)
@@ -85,3 +93,17 @@ class Trainer:
                     decoded = decode_characters(generated, self.vocab)
                     print(decoded)
         return losses
+    
+    def evaluate_loss(self, dataset, batch_size, chunk_size, num_batches=50):
+        # set model to evaluation mode
+        self.model.eval()
+        losses = []
+        with torch.no_grad():
+            for _ in range(num_batches):
+                xb, yb = get_batch(dataset, batch_size, chunk_size)
+                xb, yb = xb.to(self.device), yb.to(self.device)
+                _, loss = self.model(xb, yb)
+                losses.append(loss.item())
+        # set model to training mode again
+        self.model.train()  
+        return np.mean(losses)

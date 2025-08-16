@@ -6,8 +6,6 @@ from torch.nn import functional as F
 from decoder_block import Block
 
 class GPT(nn.Module):
-    # are we completely skipping optimizer, and initialising it in main, have it be passed to the trainer?
-    # could also use very simple configure_optimizer() function that returns one?
     def __init__(self, config, device):
         super().__init__()
         self.block_size = config.block_size

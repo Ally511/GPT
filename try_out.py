@@ -39,8 +39,12 @@ with open('corpora/vocab_train.txt', 'r', encoding='utf-8') as f:
 with open('corpora/indices_text.txt', 'r') as f:
     train_dataset = f.read()
 
+with open('corpora/indices_text_val.txt', 'r') as f:
+    validation_set = f.read()
+
 
 train_dataset = ast.literal_eval(train_dataset)
+validation_set = ast.literal_eval(validation_set)
 device = 'cpu'
 vocab_size = len(vocab)
 print(vocab_size, "ln: ", np.log(vocab_size))
@@ -49,7 +53,7 @@ our_gpt = GPT(config=config, device=device)
 
 
 
-our_trainer = Trainer(our_gpt, train_dataset, vocab, device)
+our_trainer = Trainer(our_gpt, train_dataset, vocab, device, val_dataset=validation_set)
 epochs = 1
 train_steps = 6500
 
@@ -62,6 +66,20 @@ generated = our_gpt.generate(xbatch, 100, 0.8, True, 20)
 generated = generated[0].tolist()
 decoded = decode_characters(generated, vocab)
 print(decoded)
+
+# Might be all we need for perplexity
+losses = np.array(loss)
+perplexities = np.exp(losses)
+
+# Plot perplexity
+y = np.arange(1, len(perplexities)+1)
+plt.plot(y, perplexities)
+plt.xlabel('Training Steps')
+plt.ylabel('Perplexity')
+plt.title('Perplexity of the GPT Model over Time')
+plt.savefig('perplexity_scheduled_sampling.png')
+plt.show()
+
 
 y = np.arange(1, len(loss)+1)
 plt.plot(y, loss)
