@@ -154,6 +154,14 @@ sequ_size = 64, block_size = 12, steps = 100, patience = 2
 The loss of the model looks like expected: 
 ![img.png](img/loss.png)
 
+This observation is also mirrored in the embedding which changes from noise to patterns over the training intervals:
+<p float="left">
+  <img src="img/emb1.png" width="100" />
+  <img src="img/emb2.png" width="100" /> 
+  <img src="img/emb3.png" width="100" />
+</p>
+
+
 * perplexity
 
  #### Output
