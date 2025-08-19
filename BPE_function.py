@@ -93,13 +93,13 @@ def bpe(dictionary, k):
   return vocab_bpe, sorted_token_freq, dict_matrix
 
 
-def get_best_merges(dict_train, text_train, dict_valid,text_valid,max_k,step):
+def get_best_merges(dict_train, text_train, dict_valid,text_valid,min_k,max_k,step):
 
   ks = []
   n_grams = []
   perplexities = []
 
-  for k in range (100,max_k,step):
+  for k in range (min_k,max_k,step):
     vocab_train, sorted_token_freq_train, dict_matrix_train = bpe(dict_train,k)
     n_gram_train = to_byte_pair(text_train, vocab_train)
     vocab_valid, sorted_token_freq_valid, dict_matrix_valid = bpe(dict_valid,k)
@@ -137,4 +137,4 @@ def get_best_merges(dict_train, text_train, dict_valid,text_valid,max_k,step):
   third_best_perplexity = perplexities[top_indices[2]]
   third_best_n_gram = n_grams[top_indices[2]]
 
-  return best_k,best_perplexity,best_n_gram,second_best_k,second_best_perplexity,second_best_n_gram,third_best_k,third_best_perplexity,third_best_n_gram,ks,n_gram_num,perplexities
+  return best_k,best_perplexity,best_n_gram,second_best_k,second_best_perplexity,second_best_n_gram,third_best_k,third_best_perplexity,third_best_n_gram,ks,n_grams,perplexities

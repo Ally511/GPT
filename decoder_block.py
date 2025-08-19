@@ -7,7 +7,7 @@ class Block(nn.Module):
     def __init__(self, embed_size, dropout_rate, attn_pdrop, resid_pdrop, n_head, block_size):
         super().__init__()
         self.layer_norm1 = nn.LayerNorm(embed_size)
-        self.attention = Causal_self_attention(embed_size,n_head,dropout_rate,attn_pdrop,resid_pdrop,block_size)
+        self.attention = Causal_self_attention(embed_size,n_head,attn_pdrop,resid_pdrop)
         self.layer_norm2 = nn.LayerNorm(embed_size)
 
         # Layers for the MLP

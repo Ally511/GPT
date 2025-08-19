@@ -18,6 +18,7 @@ class N_gram:
     self.unigram_probs, self.counter = self.get_unigram_probs(corpus)
     self.split_text = self.split_ngrams(corpus)
     self.n_gram_probs = self.calculate_n_gram_probs(self.split_text)
+    self.floor = 1e-8
 
 
   def get_unigram_probs(self, corpus):
@@ -89,7 +90,7 @@ class N_gram:
 
     # 2) If we can still back off (i.e. n>1), drop the first item in context
     if len(context) > 0:
-      return self._backoff_prob(context[1:], token)
+      return self.backoff_prob(context[1:], token)
 
     # 3) Finally back off to unigram
     return self.unigram_probs.get(token, self.floor)

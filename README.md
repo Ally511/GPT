@@ -178,7 +178,15 @@ The last model we present is a simpler version of a GPT. For this model, we util
 to ensure better comparability to the N-Gram and the Neural N-Gram. 
 In the following, we introduce some new concepts, namely Causal Self-Attention and Decoder Blocks.
 Then, we describe how the different building blocks come together in the GPT model and finally explain the training process and its results.
+
 #### Causal Self-Attention
+
+We used a standard architecture for implementing the Causal Self-Attention class.
+A linear layer is created with the dimensions: number of embeddings x 3* number of embeddings that is then split into key quaries and values as well as into different attention heads. Applying the scaled key-query dot product, we then create a causal mask to prevent GPT to access token that are supposed to be predicted while at the same time allowing our model to access previous tokens. We achieved this by setting  the weights of all "future" tokens. 
+Furthermore we apply softmax to normalize our weights before using our attention dropout.
+The masked attentions weights are then matrix multiplied with our values, yielding our output, that is then reshapd back to the right shape and a residual dropout is applied.
+The Causal Self-Attention class returns a linear output layer containing our attention weights * values, normalized by our residual dropout.
+
 
 #### The Decoder Block
 

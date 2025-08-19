@@ -7,8 +7,19 @@ from torch.nn import Module
 
 class Causal_self_attention(nn.Module):
     """Causal Self Attention class that defines masked multi-head attention
-    in Transformer Decoder Blocks"""
-    def __init__(self,n_embd,n_head,dropout_rate,attn_pdrop,resid_pdrop,block_size):
+    in Transformer Decoder Blocks
+    
+    Args:
+        n_embd (int): Number of Embeddings.
+        n_head (int): Number of Attention Heads.
+        dropoutrate (float): Overall Dropout Rate.
+        attn_pdrop (float): Dropout rate for Attention.
+        resid_pdrop (float): Dropout rate for Residuals.
+
+    Returns:
+        np array: Linear Layer of Attention weights * Values.
+    """
+    def __init__(self,n_embd,n_head,attn_pdrop,resid_pdrop):
         super().__init__()
         assert n_embd % n_head == 0
         #projections into key, queries and values for all heads
@@ -19,7 +30,6 @@ class Causal_self_attention(nn.Module):
         #dropouts
         self.attention_dropout = nn.Dropout(attn_pdrop)
         self.residual_dropout = nn.Dropout(resid_pdrop)
-        self.dropout_rate = dropout_rate
 
         #number of heads and number of embeddings
         self.n_head = n_head

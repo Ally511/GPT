@@ -133,7 +133,8 @@ def compare_to_gpt_encoding(text, alphabet, model_name="gpt-3.5-turbo"):
       if(decoded_token in alphabet):
         tp = tp+1
     total_len = len(alphabet)
-    print(tp/total_len)
+    return(tp/total_len)
+
     
 
 def get_top_bigrams(n_gram_probs, k=5):
