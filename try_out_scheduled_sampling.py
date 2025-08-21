@@ -37,7 +37,7 @@ class Block(nn.Module):
     def forward(self, x):
         return self.net(x)
 
-from gpt_scheduled_sampling import GPT 
+from gpt.gpt_scheduled_sampling import GPT 
 
 # Instantiate model
 device = "cpu"
