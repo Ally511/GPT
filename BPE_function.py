@@ -8,7 +8,7 @@ from collections import OrderedDict
 from collections import Counter
 
 from utility_functions import performance,find_top_indices,generate_n_grams
-from generator import to_byte_pair
+from n_gram.generator import to_byte_pair
 
 def bpe(dictionary, k):
   """
