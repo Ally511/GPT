@@ -85,7 +85,18 @@ The Simple N-Gram is composed of the following parts:
   * backoff
 * extrinsic evaluation
 
+### N-gram engine
+To initialise an n-gram, we pass the corpus it is to be based on, the dimension n, and the vocabulary size. During initialisation, these parameters are first used to calculate the Uni-gram probabilities, adding Laplace smoothing. Then, a chunked version of the corpus is used to calculate the n-gram probabilities. 
 
+Additionally, the n-gram object also contains a function to calculate the perplexity, including backoff.
+
+To intrinsically evaluate the n-grams we use the k best merges produced in Milestone 1, and calculate perplexity for each of the n-grams.
+
+* results
+
+For extrinsic evaluation, we use a generator, again using backoff, that is provided with a short prompt. The input is tokenised, and the following text is generated token by token.
+
+* results
 
 ## Milestone 3: The Neural N-Gram
 
