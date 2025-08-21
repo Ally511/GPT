@@ -78,6 +78,15 @@ As a last measure of evaluation, we used a different corpus: scripts from the tV
 
 ## Milestone 2: A Simple N-Gram
 
+The Simple N-Gram is composed of the following parts:
+
+* n-gram engine, incl.
+  * Laplace smoothing
+  * backoff
+* extrinsic evaluation
+
+
+
 ## Milestone 3: The Neural N-Gram
 
 The Neural N-Gram is composed of the following parts: 

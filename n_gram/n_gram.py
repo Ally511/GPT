@@ -120,36 +120,3 @@ class N_gram:
     pp = math.exp(-avg_ll)
     print(f"Perplexity: {pp:.2f}")
     return pp
-
-  def old_perplexity(self, split_text):
-    
-    """
-    Calculate perplexity of a given text based on an n-gram model.
-
-    Args:
-        split_text (list): Tokenized input text (list of tokens).
-        n_gram_probs (dict of dict): Nested dictionary with n-gram probabilities.
-    Returns:
-        float: Perplexity value of the input text.
-    """
-    log_prob_sum = 0.0
-    count = 0
-
-    # Iterate through text
-    for t in range(len(split_text) - self.ndim + 1):
-      context = tuple(split_text[t:t + self.ndim - 1])
-      next_token = split_text[t + self.ndim - 1]
-
-      # Small probability for unknown n-grams (smoothing)
-      prob = self.n_gram_probs.get(context, {}).get(next_token, 1e-8)
-      log_prob_sum += math.log(prob)
-      count += 1
-
-    # Calculate total probability in log space to avoid floating point underflow
-    #dividing by amount of n-gram predictions made, could also divide by len(tokens)
-    avg_log_prob = log_prob_sum / count
-    # Exponentiate at the end to get the real perplexity.
-    perplexity = math.exp(-avg_log_prob)
-
-    print(f"Old perplexity: {perplexity}")
-    return perplexity

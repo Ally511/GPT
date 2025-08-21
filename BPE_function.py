@@ -112,7 +112,8 @@ def get_best_merges(dict_train, text_train, dict_valid,text_valid,min_k,max_k,st
     for n_gram in our_n_grams_valid:
       n_gram_num += 1
       print(f"N-gram split for {n_gram_num}-gram, k = {k}: {n_gram.split_text[:10]}")
-      n_gram.old_perplexity(n_gram_valid)
+      # don't need old_perplexity anymore, right? Deleted that function, but if you want to keep it, I can put it back in
+      #n_gram.old_perplexity(n_gram_valid)
       perplexity = n_gram.perplexity(n_gram_valid)
       perplexities.append(perplexity)
       ks.append(k)
