@@ -1,4 +1,3 @@
-import numpy as np
 import torch as th
 import torch.nn as nn
 from torch.nn import functional as F
@@ -20,6 +19,7 @@ class GPT(nn.Module):
         
         # add linear layer
         self.lm_head = nn.Linear(config.n_embd, config.vocab_size, bias=False)
+
         # weights initialisation can be skipped completely? I think it just takes the default
         trans_layers = nn.ModuleList([self.token_embd, self.posit_embd, self.dropout, self.all_blocks, self.layer_norm])
         self.optimizer = self.configure_optimizer(trans_layers, config)
