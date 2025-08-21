@@ -1,7 +1,7 @@
 import torch
 # from gpt import GPT
 from gpt.gpt_scheduled_sampling import GPT
-from trainer import Trainer
+from gpt.trainer import Trainer
 from utility_functions import get_batch, decode_characters
 import ast
 import numpy as np
