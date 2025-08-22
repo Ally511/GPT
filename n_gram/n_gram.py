@@ -50,8 +50,8 @@ class N_gram:
 
   def calculate_n_gram_probs(self, split_text):
     """
-    Builds conditional probabilities: P(w_n | w_1, ..., w_{n-1})
-    Currently uses nested dictionaries, need to make that more useful for you
+    Builds conditional probabilities:, P(w_n | w_1, ..., w_{n-1}),
+    using nested dictionaries.
     """
     n = self.ndim
     if n == 1:

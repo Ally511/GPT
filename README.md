@@ -86,13 +86,19 @@ The Simple N-Gram is composed of the following parts:
 * extrinsic evaluation
 
 ### N-gram engine
-To initialise an n-gram, we pass the corpus it is to be based on, the dimension n, and the vocabulary size. During initialisation, these parameters are first used to calculate the Uni-gram probabilities, adding Laplace smoothing. Then, a chunked version of the corpus is used to calculate the n-gram probabilities. 
+To initialise an n-gram, we pass the corpus it is to be based on, the dimension n, and the vocabulary size. During initialisation, these parameters are first used to calculate the Uni-gram probabilities, adding Laplace smoothing. Depending on the dimension, n, the corpus is chunked. The output is then used to calculate the n-gram probabilities. 
 
 Additionally, the n-gram object also contains a function to calculate the perplexity, including backoff.
 
-To intrinsically evaluate the n-grams we use the k best merges produced in Milestone 1, and calculate perplexity for each of the n-grams.
+To intrinsically evaluate the n-grams we use the k best merges produced in Milestone 1, and calculate perplexity for each of the n-grams on the test set.
 
-* results
+| Merge | Unigram | Bigram | Trigram | 4-gram |
+|------|------|------|------|----------|
+| Best   | 12.474 | 4.023 | 3.257 | 3.638     |
+| 2nd   | 12.593 | 4.055 | 3.293 | 3.69     |
+| 3rd  | 12.699 | 4.079 | 3.321 | 3.73     |
+
+![img.png](img/n_gram_perplexities.png)
 
 For extrinsic evaluation, we use a generator, again using backoff, that is provided with a short prompt. The input is tokenised, and the following text is generated token by token.
 
