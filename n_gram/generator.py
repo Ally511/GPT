@@ -65,6 +65,60 @@ def to_byte_pair(context, vocab):
     return final_list
 
 
+def generate_new(context, ngram_dicts, n, vocab, max_len=200, seed=0):
+    """
+    ngram_dicts: list where
+      ngram_dicts[0] = unigram {token -> prob}
+      ngram_dicts[1] = bigram  {(t1,) -> {t2 -> prob}}
+      ngram_dicts[2] = trigram {(t1,t2) -> {t3 -> prob}}
+      ...
+    n: order to generate with (1..len(ngram_dicts))
+    """
+    rng = random.Random(seed)
+
+    def sample_from_dist(dist):
+        # dist is {token: prob}; renormalize to sum 1 (your Laplace leaves mass for unseen tokens)
+        toks, probs = zip(*dist.items())
+        probs = np.array(probs, dtype=float)
+        probs = probs / probs.sum()
+        # numpy choice needs a NumPy RNG; convert index picked by cumulative sampling:
+        c = probs.cumsum()
+        r = rng.random()
+        i = int((c > r).argmax())
+        return toks[i]
+
+    # tokenize starting context
+    text = to_byte_pair(context, vocab)
+
+    end_tokens = ['.', ':', '?', '!', '._', '!_', '?_', ':_', ';_']
+
+    def backoff(m, keys):
+        """Try order m, else back off to m-1 with a shortened key."""
+        if m == 1:
+            # unigram sample
+            return sample_from_dist(ngram_dicts[0])
+
+        # context for this order = last (m-1) tokens
+        ctx = tuple(keys[-(m-1):]) if (m-1) > 0 else tuple()
+        dist = ngram_dicts[m-1].get(ctx)
+
+        if dist:  # found this context
+            return sample_from_dist(dist)
+        else:
+            # back off to lower order, keeping the same *full* history,
+            # but backoff() will reslice it to the right length
+            return backoff(m-1, keys)
+
+    next_token = ''
+    while next_token not in end_tokens and len(text) <= max_len:
+        next_token = backoff(n, text)
+        text.append(next_token)
+
+    pretty_text = "".join(str(x) for x in text).replace('_', ' ')
+    return pretty_text
+
+
+
 
 def generate(context, ngrams, n, vocab):
     """
@@ -108,41 +162,19 @@ def generate(context, ngrams, n, vocab):
                 return next_token
             
             else:
-                print("wrong!!!")
+                #print("wrong!!!")
+                # CHANGED
+                """if n == 1:
+                    return 'my_'"""
                 if n == 1:
-                    return 'my_'
+                    sorted_dict = {key: value for key, value in sorted(ngrams[0].items(), key=lambda item: item[1], reverse=True)}
+                    zufall = random.randint(0,(len(sorted_dict)-1)//2)
+                    return list(sorted_dict.keys())[zufall]
                 return backoff(n-1, ngrams, keys)
 
-
         next_word = backoff(n, ngrams, preceding_keys)
-        # Map tokens to indices; if unknown, use None
-        # indices = [dict_tokens.get(token) for token in context]
-        #
-        # if None in indices:
-        #     # If unknown tokens: fallback to overall next-token distribution
-        #     column = ngram.sum(axis=tuple(range(n - 1)))
-        #     next_idx = column.argmax()
-        # else:
-        #     # Build index tuple: fix context, free last axis
-        #     index = tuple(indices) + (slice(None),)
-        #
-        #     # Get conditional next-token distribution
-        #     column = ngram[index]
-        #
-        #     next_idx = column.argmax()
-
-        # next_word = dict_in[next_idx]
-        # text.append(next_word)
-        
         text.append(next_word)
-        # Join final tokens and clean up
-        # pretty_text = ''.join(text)
-        # pretty_text = pretty_text.replace('_', ' ')
-        #print(pretty_text)
-        # print(text)
-    # text = str(text)
-    # Join final tokens and clean up
+        
     pretty_text = "".join(str(x) for x in text)
-    # pretty_text = ''.join(text)
     pretty_text = pretty_text.replace('_', ' ')
     return pretty_text
