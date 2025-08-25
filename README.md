@@ -82,7 +82,7 @@ Another evaluation measure we implemented is to compare how much the words gener
 ### Evaluating our encoding on a different corpus
 As a last measure of evaluation, we used a different corpus: scripts from the tV show 'Friends' and compared how many of the 500 most frequent words from our friends corpus were part of the byte pair vocabulary. We computed accuracy for the top three best merges. Morevover we once again compared our byte pair encoding with the encoding of GPT 3.5 turbo using our friends corpus
 
-* results
+![img.png](img/best_ks_vs_gpt_encoding_friends.png)
 
 ## Milestone 2: A Simple N-Gram
 
