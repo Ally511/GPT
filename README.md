@@ -251,8 +251,8 @@ In total, this results in the following architecture:
 * $x = x' + x$
 
 MLP:
-* $x' = Linear(x)$ with $input_dimension = embedding_size$, $output_dimension = 4* embedding_size$
-* $x' = Linear2(x')$ with $input_dimension = 4*embedding_size$, $output_dimension = embedding_size$
+* $x' = Linear(x)$ with $input\_dimension = embedding\_size$, $output\_dimension = 4* embedding\_size$
+* $x' = Linear2(x')$ with $input\_dimension = 4*embedding\_size$, $output\_dimension = embedding\_size$
 * $x' = Dropout(x')$
 * $x = x' + x$
 #### The GPT model
@@ -285,4 +285,6 @@ To compare the performance across the different models we compare the perplexity
 | GPT        | 44.08   | 177.14 | 179.71   |
 |neural-ngram| 61.74   | 151.90 | 150.24   |  
 | bi-gram    | 97.83   | 112.09 | 111.87   |
+
+
 Interestingly, while the performance on the train dataset consistently improves on the more complicated models, the perplexity on the validation and test dataset decreases. This is probably in part due to the rather small corpus. 
