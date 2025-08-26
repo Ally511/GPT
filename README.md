@@ -251,8 +251,8 @@ In total, this results in the following architecture:
 * $x = x' + x$
 
 MLP:
-* $x' = Linear(x)$ with $input\_dimension = embedding\_size$, $output\_dimension = 4* embedding\_size$
-* $x' = Linear2(x')$ with $input\_dimension = 4*embedding\_size$, $output\_dimension = embedding\_size$
+* $x' = Linear(x)$ with $input_dimension = embedding_size$, $output_dimension = 4* embedding_size$
+* $x' = Linear2(x')$ with $input_dimension = 4*embedding_size$, $output_dimension = embedding_size$
 * $x' = Dropout(x')$
 * $x = x' + x$
 #### The GPT model
