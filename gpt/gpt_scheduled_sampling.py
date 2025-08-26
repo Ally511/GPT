@@ -1,8 +1,8 @@
 import torch as th
 import torch.nn as nn
 from torch.nn import functional as F
-
-from decoder_block import Block
+import decoder_block as block
+import numpy as np
 
 class GPT(nn.Module):
     def __init__(self, config, device):
@@ -14,7 +14,7 @@ class GPT(nn.Module):
         self.token_embd = nn.Embedding(config.vocab_size, config.n_embd)
         self.posit_embd = nn.Embedding(config.block_size, config.n_embd)
         self.dropout = nn.Dropout(config.embd_pdrop)
-        self.all_blocks = nn.ModuleList([Block(config.n_embd, config.dropout, config.attn_pdrop, config.resid_pdrop, config.n_head, config.block_size) for _ in range(config.n_layer)])
+        self.all_blocks = nn.ModuleList([block.Block(config.n_embd, config.dropout, config.attn_pdrop, config.resid_pdrop, config.n_head, config.block_size) for _ in range(config.n_layer)])
         self.layer_norm = nn.LayerNorm(config.n_embd)
         
         # add linear layer
@@ -137,7 +137,7 @@ class GPT(nn.Module):
 
     
     @th.no_grad()
-    def generate(self, idx, max_new_tokens, temp=1.0, sampling=False, top_k=None):
+    def generate(self, idx, max_new_tokens, temp=1.0, sampling=False, top_k=None, eval = False):
         """
         Args:
             idx (LongTensor): sequence of indices, shape (b,t)
@@ -145,6 +145,7 @@ class GPT(nn.Module):
             temp (float): temperature to scale probabilities of logits by
             sampling (boolean): boolean controlling whether next token is sampled from distribution or argmax
             top_k (int): if not None, only top k tokens are used in sampling
+            eval: return raw logits for final perplexity calculation
         """
         for _ in range(max_new_tokens):
             # cut off at block-size
@@ -161,6 +162,9 @@ class GPT(nn.Module):
 
             # normalise logit probabilities
             soft_logits = F.softmax(logits, dim=-1)
+
+            if eval: 
+                return soft_logits
 
             # sample from distribution or argmax
             if sampling:

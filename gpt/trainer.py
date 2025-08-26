@@ -3,6 +3,7 @@ import numpy as np
 import torch
 from tqdm import tqdm
 from utility_functions import get_batch, decode_characters
+import math
 # ACHTUNG: added val_dataset to init
 
 class Trainer:
@@ -30,7 +31,45 @@ class Trainer:
         self.model = self.model.to(self.device)
 
         self.val_dataset = val_dataset
+    # calculate the perplexity of the embedding
 
+    def perplexity(self, test_indices, embedding):
+        """
+        Compute perplexity for a neural n-gram model using the trained embedding.
+        Args:
+            test_indices (list or array): Sequence of token indices (integers).
+        Returns:
+            float: Perplexity value.
+        """
+        log_prob = 0.0
+        M = 0
+
+        # Convert embedding to torch tensor if needed
+        if isinstance(embedding, np.ndarray):
+            emb = torch.from_numpy(embedding).float()
+        else:
+            emb = embedding
+
+        for i in range(len(test_indices) - 1):
+            prev_token = test_indices[i]
+            w = test_indices[i + 1]
+
+            # context is previous token for bigram
+            logits = emb[prev_token]
+            probs = torch.softmax(logits, dim=-1)
+            p = probs[w]
+
+            # Avoid log(0)
+            if p == 0.0:
+                p = 1e-9
+
+            log_prob += math.log(p)
+            M += 1
+
+        avg_ll = log_prob / M
+        pp = math.exp(-avg_ll)
+        print(f"Perplexity: {pp:.2f}")
+        return pp
 
     def run(self, epochs, train_steps, batch_size, chunk_size):
         """
@@ -57,8 +96,10 @@ class Trainer:
         self.model.train()
         losses = []
         perplexities = []
+        val_losses = []
 
         for epoch in range(epochs):
+            print("##################################################################")
             print(f"Epoch {epoch + 1}/{epochs}")
             progress_bar = tqdm(range(train_steps), desc="Training", leave=False)
 
@@ -79,22 +120,23 @@ class Trainer:
                 loss.backward()
                 self.optimizer.step()
 
-                if self.val_dataset and train_step % 1000 == 0:
+                if self.val_dataset and (train_step+1) % 1000 == 0:
                     validation_loss = self.evaluate_loss(self.val_dataset, batch_size, chunk_size)
                     val_perplexity = np.exp(validation_loss)
                     perplexities.append(val_perplexity)
                     print(f"Validation Loss: {validation_loss:.4f}, Perplexity: {val_perplexity:.2f}")
-
+                    val_losses.append(float(validation_loss))
                 val_loss = loss.item()
                 # tqdm.write(f"Loss: {val_loss:.4f}")
                 progress_bar.set_postfix(loss=val_loss)
                 progress_bar.update(1)
-                if train_step % 1000 == 0:
+                if (train_step+1) % 1000 == 0:
                     generated = self.model.generate(torch.tensor([[0]], dtype=torch.long).to(self.device), 100, 0.8, True, 20)
                     generated = generated[0].tolist()
                     decoded = decode_characters(generated, self.vocab)
+                    print("Generated text: ")
                     print(decoded)
-        return losses, perplexities
+        return losses, val_losses, perplexities
     
     def evaluate_loss(self, dataset, batch_size, chunk_size, num_batches=50):
         # set model to evaluation mode

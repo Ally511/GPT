@@ -277,6 +277,12 @@ To ensure the loss model is optimzized we then train it for 10 epochs with 1000 
 ![img.png](img/gpt_loss.png)
 As is apparent in the image while the training loss is steadily decreasing, we reach a point of overfitting quite early. This might be the case because splitting the corpus simply means the training data contains differnt works than the validation data, which might contain some inherently unique strucutres. Additionally, simplifications made to the gpt model such simpler weight initialization and optimizer configuration. 
 
+#### Output
+"other men . brutus what , i am not well ; i have no more than to be at the t to do . brutus i have done no . cassius what , my lord ? brutus , i would not know you know that you do . brutus i know you not , and i am to speak of you ;"
+
+"cleopatra , if you to the e-house . exit charmian no , nor i in love with you  cleopatra and , sir , . cleopatra you have done , me ; and i will not be ."
+
+"last , i pray thee ; for i have seen the last night of the world . desdemona i you , my lord , my lord , i am for this . othello i am to have done any man in my life ; and , for my soul ;"
 
 ## Comparison
 To compare the performance across the different models we compare the perplexity on the test dataset.
