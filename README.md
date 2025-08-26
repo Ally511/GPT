@@ -266,7 +266,23 @@ The optimizer uses different learning rates for each parameter and is therefore 
 For extrinsic evaluation, we the generate a text with the trained model to calculate its perplexity. The text is also decoded for subjective evaluation.
 
 #### Hyperparameter Search
+We performed a small Gridserach over the following parameters to optimze the model over 3 epochs a 1200 steps : 
+* number of layers: [4, 8]
+* number of heads: [2, 4]
+* embedding size: [128, 256]
+* learning rate: [1e-3, 1e-4]
+* batch size: [16, 32]
+For this the optimal values turned out to be layers: 4, heads: 2, embedding: 256, learning rate: 0.001, batch_size: 16 with a perlexitity on the valaidation data of  162.04.
+To ensure the loss model is optimzized we then train it for 10 epochs with 1000 steps each, which leads to the following loss curve: 
+![img.png](img/gpt_loss.png)
+As is apparent in the image while the training loss is steadily decreasing, we reach a point of overfitting quite early. This might be the case because splitting the corpus simply means the training data contains differnt works than the validation data, which might contain some inherently unique strucutres. Additionally, simplifications made to the gpt model such simpler weight initialization and optimizer configuration. 
 
-#### Results
 
 ## Comparison
+To compare the performance across the different models we compare the perplexity on the test dataset.
+|model       | train   | validation | test |
+|------      |------   |------  |----------|
+| GPT        | 44.08   | 177.14 | 179.71   |
+|neural-ngram| 61.74   | 151.90 | 150.24   |  
+| bi-gram    | 97.83   | 112.09 | 111.87   |
+Interestingly, while the performance on the train dataset consistently improves on the more complicated models, the perplexity on the validation and test dataset decreases. This is probably in part due to the rather small corpus. 
