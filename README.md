@@ -294,3 +294,19 @@ To compare the performance across the different models we compare the perplexity
 
 
 Interestingly, while the performance on the train dataset consistently improves on the more complicated models, the perplexity on the validation and test dataset decreases. This is probably in part due to the rather small corpus. 
+
+#### Qualitative comparison
+Best Bigram
+
+"cleopatra is my sourtues mark that shall tellutive now seek natural ;"
+
+
+Neural n-gram:
+
+"cleopatra , good brutus get ; bid  desdemona i will , , nor can he would aim of hadst cassius is it him tame , run on , unto his jewelling her he cannot find"
+
+GPT: 
+
+"cleopatra , if you to the e-house . exit charmian no , nor i in love with you  cleopatra and , sir , . cleopatra you have done , me ; and i will not be ."
+
+Interestingly, while none of the models produces sound texts, the texts are strucutrally different. While new-line characters are lost in the preprocessing, in the more complex models the dialog strucutre of shakespears dramas is noticable and explains the frequency of names mentioned. GPT additionally contains apects of the spekers reffering to each other (frequent pronous like "you", "me"; honorifics like "sir" ).
