@@ -325,9 +325,16 @@ Increasing the global dropout probabiltiy has no notable effects on the performa
 However, while it seemingly does improve the overfitting issue, most of the effect is only due to a higher overall loss. This is also reflected in the perplexity, which does not get lower than then 160 mark set by out baseline model. 
 
 <p float="center">
-  <img src="img/embd_pdrop_perp.png" width="250" />
-  <img src="img/attn_pdrop_perp.png" width="250" /> 
-  <img src="img/resid_pdrop_perp.png" width="250" /> 
+  <img src="img/embd_pdrop_perp.png" width="250" /><br>
+  <em>Embedding Dropout Perplexity</em>
+</p>
+<p float="center">
+  <img src="img/attn_pdrop_perp.png" width="250" /><br>
+  <em>Attention Dropout Perplexity</em>
+</p>
+<p float="center">
+  <img src="img/resid_pdrop_perp.png" width="250" /><br>
+  <em>Residual Dropout Perplexity</em>
 </p>
 
 
