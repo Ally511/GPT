@@ -317,7 +317,7 @@ Dropout is a common method to add normailzation to the model and prevent overfit
 * dropout: global dropout probability
 Increasing the global dropout probabiltiy has no notable effects on the performance 
 <p float="middle">
-  <img src="img/loss.png" width="250" />
+  <img src="img/gpt_loss.png" width="250" />
   <img src="img/loss_dropout_0.4.png" width="250" /> 
 </p>
 
