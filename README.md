@@ -85,6 +85,7 @@ As a last measure of evaluation, we used a different corpus: scripts from the tV
 ![img.png](img/best_ks_vs_gpt_encoding_friends.png)
 
 ## Milestone 2: A Simple N-Gram
+the fixed backoff does not solve the perlexity. Resons for it might be: overfitting (small corpus), simplistic smoothing, not unkown characters in training
 
 The Simple N-Gram is composed of the following parts:
 
