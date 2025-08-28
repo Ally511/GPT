@@ -275,7 +275,9 @@ We performed a small Gridserach over the following parameters to optimze the mod
 * batch size: [16, 32]
 For this the optimal values turned out to be layers: 4, heads: 2, embedding: 256, learning rate: 0.001, batch_size: 16 with a perlexitity on the valaidation data of  162.04.
 To ensure the loss model is optimzized we then train it for 10 epochs with 1000 steps each, which leads to the following loss curve: 
+
 ![img.png](img/gpt_loss.png)
+
 As is apparent in the image while the training loss is steadily decreasing, we reach a point of overfitting quite early. This might be the case because splitting the corpus simply means the training data contains differnt works than the validation data, which might contain some inherently unique strucutres. Additionally, simplifications made to the gpt model such simpler weight initialization and optimizer configuration. 
 
 ### Further exploration
@@ -316,10 +318,19 @@ Dropout is a common method to add normailzation to the model and prevent overfit
 * attn_pdrop: dropout probability for the attention weights
 * dropout: global dropout probability
 Increasing the global dropout probabiltiy has no notable effects on the performance 
-<p float="middle">
+<p float="center">
   <img src="img/gpt_loss.png" width="250" />
   <img src="img/loss_dropout_0.4.png" width="250" /> 
 </p>
+However, while it seemingly does improve the overfitting issue, most of the effect is only due to a higher overall loss. This is also reflected in the perplexity, which does not get lower than then 160 mark set by out baseline model. 
+
+<p float="center">
+  <img src="img/embd_pdrop_perp.png" width="250" />
+  <img src="img/attn_pdrop_perp.png" width="250" /> 
+  <img src="img/resid_pdrop_perp.png" width="250" /> 
+</p>
+
+
 
 #### Qualitative comparison
 Best Bigram
