@@ -12,9 +12,10 @@ import math
 
 class N_gram:
 
-  def __init__(self, corpus, n, vocab_size):
+  def __init__(self, corpus, n, vocab):
+    self.vocab = vocab
     self.ndim = n
-    self.vocab_size = vocab_size
+    self.vocab_size = len(vocab)
     self.unigram_probs, self.counter = self.get_unigram_probs(corpus)
     self.split_text = self.split_ngrams(corpus)
     self.n_gram_probs = self.calculate_n_gram_probs(self.split_text)
@@ -39,11 +40,12 @@ class N_gram:
     """
     # want to split this into the maximum possible length
     # why am I not passing the vocabulary?
-    n = self.ndim
     split_text = []
-    for i in range(len(corpus) - n + 1):
-      
-      split_text.append(corpus[i : i+n])
+    for n in range(1, self.ndim+1):
+      text = []
+      for i in range(len(corpus) - n + 1):
+        text.append(corpus[i : i+n])
+      split_text.append(text)
 
     return split_text
 
@@ -54,68 +56,70 @@ class N_gram:
     using nested dictionaries.
     """
     n = self.ndim
-    if n == 1:
-      return self.unigram_probs
-    
-    # nested defaultdicts for automatic initialization
-    n_gram_counts = defaultdict(lambda: defaultdict(int))
+    n_gram_probs = []
+    for i in range(n):
+      if i == 0:
+        n_gram_probs.append(self.unigram_probs) 
+      else:
+        # nested defaultdicts for automatic initialization
+        n_gram_counts = defaultdict(lambda: defaultdict(int))
 
-    for n_gram in split_text:
-      prefix = tuple(n_gram[:-1])  # context: first n-1 tokens
-      target = n_gram[-1]          # prediction target: nth token
-      n_gram_counts[prefix][target] += 1
+        for n_gram in split_text[i]:
+          
+          prefix = tuple(n_gram[:-1])  # context: first n-1 tokens
+          target = n_gram[-1]          # prediction target: nth token
+          n_gram_counts[prefix][target] += 1
 
-    # convert counts to probabilities
-    n_gram_probs = {}
+        # convert counts to probabilities
+        n_g_probs = {}
 
-    for prefix, target_counts in n_gram_counts.items():
-      total = float(sum(target_counts.values()))
-      # add count of 1 for Laplace Smoothing
-      n_gram_probs[prefix] = {token: (count +1)/ (total+self.vocab_size) for token, count in target_counts.items()}
-
+        for prefix, target_counts in n_gram_counts.items():
+          total = float(sum(target_counts.values()))
+          n_g_probs[prefix] = {}
+          for token in self.vocab:
+              count = target_counts.get(token, 0)
+              n_g_probs[prefix][token] = (count + 1) / (total + self.vocab_size)
+        n_gram_probs.append(n_g_probs)
     return n_gram_probs
     
-  def backoff_prob(self, context, token):
+  def backoff_prob(self, context, token, n):
     """
     Recursively back off from the full (n-1)-gram context down
     to unigram.  This mirrors exactly your `backoff(...)` in generate(),
     except it returns a probability instead of a sampled token.
     """
     # 1) If we're at the top order (len(context)==n-1), try to use it
-    if len(context) == self.ndim - 1:
-      dist = self.n_gram_probs.get(tuple(context))
+    if n > 1:
+      dist = self.n_gram_probs[n-1].get(tuple(context), None)
       if dist is not None:
         # seen this context
+        
         return dist.get(token, 1/(self.counter[token]+self.vocab_size))    # if token unseen under this context, prob=0 here
-
-    # 2) If we can still back off (i.e. n>1), drop the first item in context
-    if len(context) > 0:
-      return self.backoff_prob(context[1:], token)
-
-    # 3) Finally back off to unigram
+      # 2) If we can still back off (i.e. n>1), drop the first item in context
+      if len(context) > 0:
+        return self.backoff_prob(context[1:], token, n-1)
+      
+      # 3) Finally back off to unigram
     return self.unigram_probs.get(token, self.floor)
 
-  def perplexity(self, split_text, floor = 1e-8):
+  def perplexity(self, text, n):
     """
     Compute PP = exp{-1/M ∑_i log P(w_i | context_i)} using
     exactly the same backoff-probabilities as generate().
     """
     log_prob = 0.0
     M = 0
-    n = self.ndim
+    floor = self.floor
+    for i in range(len(text) - n + 1):
 
-    for i in range(len(split_text) - n + 1):
-      ctx = split_text[i : i + n - 1]
-      w   = split_text[i + n - 1]
-
-      p = self.backoff_prob(ctx, w)
+      ctx = text[i : i + n - 1]
+      w   = text[i + n - 1]
+      p = self.backoff_prob(ctx, w, n)
       # if p is zero (never seen at any order, even unigram), floor it  
       if p == 0.0:
         p = floor
-
       log_prob += math.log(p)
       M += 1
-
     avg_ll = log_prob / M
     pp = math.exp(-avg_ll)
     print(f"Perplexity: {pp:.2f}")
