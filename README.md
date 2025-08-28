@@ -323,8 +323,8 @@ Increasing the global dropout probabiltiy has no notable effects on the performa
   <img src="img/loss_dropout_0.4.png" width="250" /> 
 </p>
 However, while it seemingly does improve the overfitting issue, most of the effect is only due to a higher overall loss. This is also reflected in the perplexity, which does not get lower than then 160 mark set by out baseline model. 
+<p float="center">When looking at the dropout rate in more detail, it 
 
-<p float="center">
   <figure style="display:inline-block; text-align:center;">
     <img src="img/embd_pdrop_perp.png" width="250" />
     <figcaption>Embedding Dropout</figcaption>
@@ -338,6 +338,7 @@ However, while it seemingly does improve the overfitting issue, most of the effe
     <figcaption>Residual Dropout</figcaption>
   </figure>
 </p>
+When looking at the dropout rate in more detail, it becomes clear that while attention and residual dropout doesnt have a strong infuence on the perplexity, embedding Dropout does improve the perplexity by nearly 10 points. 
 
 
 
