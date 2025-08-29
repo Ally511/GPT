@@ -9,6 +9,7 @@ contains n-gram class with methods:
 """
 from collections import Counter, defaultdict
 import math
+import random
 
 class N_gram:
 
@@ -82,7 +83,7 @@ class N_gram:
         n_gram_probs.append(n_g_probs)
     return n_gram_probs
     
-  def backoff_prob(self, context, token, n):
+  def backoff_prob(self, context, token, n, generate = False):
     """
     Recursively back off from the full (n-1)-gram context down
     to unigram.  This mirrors exactly your `backoff(...)` in generate(),
@@ -90,16 +91,19 @@ class N_gram:
     """
     # 1) If we're at the top order (len(context)==n-1), try to use it
     if n > 1:
-      dist = self.n_gram_probs[n-1].get(tuple(context), None)
+      context = tuple(context)
+      dist = self.n_gram_probs[n-1].get(context, None)
+
       if dist is not None:
         # seen this context
-        
+        if generate: return dist
         return dist.get(token, 1/(self.counter[token]+self.vocab_size))    # if token unseen under this context, prob=0 here
       # 2) If we can still back off (i.e. n>1), drop the first item in context
       if len(context) > 0:
-        return self.backoff_prob(context[1:], token, n-1)
+        return self.backoff_prob(context[1:], token, n-1, generate)
       
       # 3) Finally back off to unigram
+    if generate: return self.unigram_probs
     return self.unigram_probs.get(token, self.floor)
 
   def perplexity(self, text, n):
@@ -124,3 +128,31 @@ class N_gram:
     pp = math.exp(-avg_ll)
     print(f"Perplexity: {pp:.2f}")
     return pp
+  
+  def generate(self, n, max_length=100, seed=None, k = 5):
+    """
+    Generate a sequence of tokens using the n-gram model with backoff.
+    """
+    end_tokens = ['.', ':', '?', '!', '._', '!_', '?_', ':_', ';_']
+
+    if seed is None:
+      current_token = random.choice(self.vocab)
+      output = [current_token]
+    else:
+      output = seed
+
+    for _ in range(max_length - 1):
+      context = output[-(n - 1):] 
+      next_token = self.backoff_prob(context, None, n, generate=True)
+      # Sample randomly from the top k tokens by probability
+      sorted_tokens = sorted(next_token.items(), key=lambda item: item[1], reverse=True)
+      top_k = sorted_tokens[:k]
+      tokens, probs = zip(*top_k)    
+      next_token = random.choices(tokens, weights=probs, k=1)[0]
+      output.append(next_token)
+      if next_token in end_tokens:
+        break
+    
+    pretty_text = "".join(str(x) for x in output).replace('_', ' ')
+
+    return pretty_text
