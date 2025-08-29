@@ -1,13 +1,13 @@
 # Building GPT from Scratch: Course Report
 
 ## Milestone 0 : Simple Tokenization with Unix
-In Natural Language Processing (NLP), one first step is to tokenize a given text into different tokens. These tokens then serve as a basis for the vocabulary and other processes. 
+In Natural Language Processing (NLP), one first step is to tokenize a given text into tokens. These tokens then serve as a basis for the vocabulary and later processes. 
 Tokenization can be more or less sophisticated. A very simple way is to just remove punctuation and use spaces as an indicator for separation of tokens. 
 This can easily be achieved by using different Unix commands, as demonstrated in the following. 
 ```bash
 tr -sc 'A-Za-z' '\n' < corpora/clean_shakespeare.txt |head
 ```
-With this line, everything that is not an uppercase or lowercase letter (identified via `-c` meaning complement) is squeezed together (via the flag `s`) and substituted by a new line, resulting in the following output:
+With this line, everything that is not an uppercase or lowercase letter (identified via `-c`, meaning complement) is squeezed together (via the flag `s`) and substituted by a new line, resulting in the following output:
 ![img.png](unix_tokenization/unix_command1.png)
 To sort the output by alphabet, the command can be easily extended by a `sort` pipe: 
 ```bash
@@ -23,7 +23,7 @@ Executing that line, gives you this output:
 
 ![img.png](unix_tokenization/unix_command3.png)
 
-To gain a better understanding of the given corpus, the unique characters can again be sorted by occurrence, applying again a ``sort`` operation.
+To gain a better understanding of the given corpus, the unique characters can again be sorted by occurrence, again applying a ``sort`` operation.
 This time, we need to specify ``-n``, to sort numerically (by the number of occurrence) and `-r`, meaning reverse ordering, so starting with the token that occurs the most. 
 ````bash
 tr -sc 'A-Za-z' '\n' < corpora/clean_shakespeare.txt |sort |uniq -c |sort -n -r |head
@@ -32,7 +32,7 @@ This pipeline results in the following output:
 ![img.png](unix_tokenization/unix_command4.png)
 
 From this, we can identify two problems.
-First, as we can see for the token "I", we still have a mixture of uppercase and lowercase letters, while we aim to have a case-insensitive tokenization.
+First, as we can see for the token "I", we still have a mixture of uppercase and lowercase letters, although we aim to have a case-insensitive tokenization.
 This is easily fixed by adjusting the pipeline to merge upper- and lowercase letters.
 ````bash
 tr 'A-Z' 'a-z' < clean_shakespeare.txt | tr -sc 'A-Za-z' '\n' | sort | uniq -c | sort -nr | head
@@ -41,46 +41,44 @@ Here we can see, that the problem is now solved:
 ![img.png](unix_tokenization/unix_command5.png)
 Second, the last line of the head is just the character "d", resulting from the mere removal of punctuation. 
 Contractions like "I'd" will lead to "d" being perceived as a single token. By that, it is showcased how primitive this way of tokenization is.
-For more complex models, more sophisticated algorithms, like Byte-Pair Encoding, should be used for this step to ensure better performance.
+For more complex models more sophisticated algorithms, like Byte-Pair Encoding, should be used for this step to ensure better performance.
 
 ## Milestone 1: Byte-Pair Encoding
 
 The Byte Pair Encoding Milestone is composed of the following parts:
 
 * getting unique characters from the corpus
-* applying our BPE function 
+* applying our BPE function with varying `k`
 * checking for accuracy
 * comparing byte pairs from our encoding to another model's encoding
 * evaluating our encoding on a different corpus
 
 ### Getting unique characters from the corpus
-We retreive all unique characters from the corpus by applying our get_words function, which uses a regular expression tokenizer
-that also counts the occurence of each character and saves this into a dictionary.
+We retrieve all unique characters from the corpus by applying our ``get_words()`` function, which uses a regular expression tokenizer that also counts the occurence of each character and saves this into a dictionary.
 
 ### Applying our BPE function
-We then utilize our self written BPE function, that takes the corpus text as well as the dictionary of vocabulary 
-and a certain number of k merges. The BPE function searches for the most common occurence of a token following another and then merges these tokens into a new token and appends the new token to the vocabulary. It returns the new vocabulary after k merges, a sorten token frequency and a dictionary matrix. In order to get the best three merges, we first used our accuracy function and searched for the lowest number of merges that yield an accuracy bigger than 75%, as our minimum merges, then applied the BPE function with 1minimum merges to 2001 merges in steps of 100 to our training set, created a uni-, a bi- a tri- and a fourgram for each k and evaluated their perplexity, then saved the k and the kind of n-gram for the top three best perplexities. Furthermore we used those top three best merges to split our training, validation and test corpus into byte pairs using our to_byte_pair function that applies the vocabulary retrieved from the BPE function and splits the corpus accordingly. 
+We then utilize our self-written BPE function ``bpe()``, that takes a dictionary with the tokens mapped to their respecitve occurence counts, and a certain amount of merges `k` as input. The BPE function searches for the most common occurence of a token following another. These tokens are then merged into one new token, which is appended to the vocabulary. After `k` merges, it returns the new vocabulary, a sorted token frequency and a dictionary matrix. In order to determine the best three `k` merges, we first use our accuracy function ``performance()``, which calculates the percentage of overlap between the $500$ most frequent words in the corpus and the newly merged vocabulary. We search for the lowest number of merges that yield an accuracy bigger than 75%, and consider this the minimum number of merges -- here: $k = 1101$, with an accuracy of 83%. We then apply the BPE function from that minimum number of merges to 2001 maximum merges in steps of 100 to our training set. For each `k`, we create a Uni-, a Bi- a Tri- and a 4-gram, and evaluate their perplexity. For the top three perplexities, we then save the k, and the optimal order of n-gram. We then use the top three best merges to split our training, validation and test corpus into byte pairs. To do this, we use our ``to_byte_pair()`` function that takes the vocabulary retrieved from the BPE function and applies it to split the input string, here the entire cleaned corpus, accordingly. 
 
-The results we obtained are visualized in the following plot:
+The detailed results we obtained are visualized in the following plot:
 
 ![img.png](img/ks_vs_n_grams_perplexities.png)
 
 ### Checking for Accuracy
-Now, we evaluate the accuracy, by calculating for each of the given top three k, how many percent of the 500 most frequent words in the corpora are part of the vocabulary. Checking for both training and testing set and then reporting accuracy.
+Now, we evaluate the accuracy. For each of the given top three `k`, we calculate how many percent of the 500 most frequent words in the corpora are part of the vocabulary, for both training and test set.
 
 ![img.png](img/best_ks_vs_training_and_test_accuracy.png)
 
-This image also shows the accuracy for all ks from 1 to 2001, that we used to find the minimum merges that yield an accuracy >75%.
+This image also shows the accuracy for all ks from 1 to 2001. As mentioned, we consider the minimum number of merges to require an accuracy >75%.
 
 ![img.png](img/ks_vs_accuracy.png)
 
-### Comparing our encoding to another's model encoding
-Another evaluation measure we implemented is to compare how much the words generated by our BPE encoding overlap with the encoding of another model. For this we used GPT 3.5 turbo to once again produce byte pairs and compute the overlap. We did this on both our training and test set for all top three best merges
+### Comparing our encoding to another model's encoding
+Another evaluation measure we implemented is to compare how much the words generated by our BPE encoding overlap with the encoding of another model. For this we used ``GPT 3.5 Turbo`` to once again produce byte pairs and compute the overlap. We did this on both our training and test set for all top three best merges.
 
 ![img.png](img/best_ks_vs_gpt_encoding_training_and_test.png)
 
 ### Evaluating our encoding on a different corpus
-As a last measure of evaluation, we used a different corpus: scripts from the tV show 'Friends' and compared how many of the 500 most frequent words from our friends corpus were part of the byte pair vocabulary. We computed accuracy for the top three best merges. Morevover we once again compared our byte pair encoding with the encoding of GPT 3.5 turbo using our friends corpus
+As a last measure of evaluation, we used a different corpus: scripts from the TV show 'Friends'. We then compared how many of the 500 most frequent words from our 'Friends' corpus were part of the byte pair vocabulary. We computed accuracy for the top three best merges. Morevover, we once again compared our byte pair encoding with the encoding of ``GPT 3.5 Turbo``.
 
 ![img.png](img/best_ks_vs_gpt_encoding_friends.png)
 
@@ -89,19 +87,19 @@ the fixed backoff does not solve the perlexity. Resons for it might be: overfitt
 
 The Simple N-Gram is composed of the following parts:
 
-* n-gram engine, incl.
+* N-gram engine, incl.
   * Laplace smoothing
-  * backoff
-* extrinsic evaluation
+  * Backoff
+* Extrinsic evaluation
 
 ### N-gram engine
-To initialise an n-gram, we pass the corpus it is to be based on, the dimension n, and the vocabulary size. During initialisation, we first calculate the Unigram probabilities given the byte-pair tokenised corpus, adding Laplace smoothing. Depending on the dimension, n, that corpus is then divided into chunks of size n. Using nested dictionaries, the n-gram probabilities are now calculated from that chunked corpus. 
+To initialise an n-gram, we pass the training corpus it is going to be based on, the order `n`, and the vocabulary size. During initialisation we first calculate the Unigram probabilities given the byte-pair tokenised corpus, adding Laplace smoothing, with our ``get_unigram_probs()``. Depending on the order of the n-gram `n`, that training corpus is then divided into chunks of size `n` with ``split_ngrams()``. Using nested dictionaries, the n-gram probabilities are now calculated from that chunked corpus with ``calculate_n_gram_probs()``. 
 
-Additionally, the n-gram object also contains a function to calculate the perplexity (also including backoff, as that is also used in generation). Perplexity is calculated in logspace, according to:
+Additionally, the n-gram object also contains a generation function ``generate()``, and one to calculate the perplexity ``perplexity()``. Both also rely on the backoff function ``backoff_prob()``. Our ``perplexity()`` function calculates the perplexity in logspace, according to:
 
 * add formula
 
-If a token has not been seen at any order, not even unigram, we assign a small probability of $1e-8$.
+In our backoff-function, we recursively back off from the full n-gram context down to the unigram if a token is unseen in the given context. If a token has not been seen at any order, not even unigram, we assign a small probability of $1e-8$.
 
 To intrinsically evaluate the n-grams we use the k best merges produced in Milestone 1, and calculate perplexity for each of the n-grams on the test set.
 
@@ -115,7 +113,7 @@ To intrinsically evaluate the n-grams we use the k best merges produced in Miles
 
 ![img.png](img/n_gram_prplx_diff.png)
 
-As we can see, the Bigram always performs best. Usually it is followed by the Trigram, but sometimes also the Unigram. The 4-gram always has the worst performance. This is likely caused by the rather small corpus and the hard backoff.
+As we can see, the Bigram always performs best. Usually it is followed by the Trigram, but sometimes also the Unigram. The 4-gram always has the worst performance. Possible reasons for this could be overfitting to the rather small corpus, too simplistic smoothing, the hard backoff.
 
 For extrinsic evaluation, we use a generator, again using backoff, that is provided with a short prompt. The input is tokenised, and the following text is generated token by token.
 
