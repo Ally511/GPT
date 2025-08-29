@@ -96,6 +96,7 @@ class N_gram:
 
       if dist is not None:
         # seen this context
+        print(n)
         if generate: return dist
         return dist.get(token, 1/(self.counter[token]+self.vocab_size))    # if token unseen under this context, prob=0 here
       # 2) If we can still back off (i.e. n>1), drop the first item in context
