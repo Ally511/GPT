@@ -18,7 +18,68 @@ from itertools import islice
 # from n_gram.n_gram import N_gram
 # from n_gram.generator import to_byte_pair
 from n_gram.n_gram import N_gram
-from n_gram.generator import to_byte_pair
+
+def to_byte_pair(context, vocab):
+    """
+    Tokenize a string into subword units using a simple greedy byte-pair-like algorithm.
+
+    Args:
+        context (str): The input string to tokenize.
+        vocab (list of str): Known subword tokens, e.g. from a BPE vocabulary.
+
+    Returns:
+        list of str: The tokenized input as a list of matched tokens and any leftover characters.
+    """
+    # Replace spaces with underscores for consistent token matching
+    context = context.lower()
+    context += "_"
+    context = context.replace(' ', '_')
+    punctuation = [ '.', '!', '?', ':', ';']
+    def remove_punctuation(input_string):
+        result = input_string
+        for char in punctuation:
+            if char != ' ':
+                result = result.replace(char, f'_{char}')
+        return result
+
+    context = remove_punctuation(context)
+
+
+    # Sort vocabulary by length (longer matches first)
+    vocab.sort(key=lambda x: len(x), reverse=True)
+
+    final_list = []
+    mismatch = ""
+
+    while context != "":
+        old_context = context
+        match = False
+
+        # Try to find the longest matching token at the current position
+        for token in vocab:
+            if token == context[:len(token)]:
+                if mismatch:
+                    final_list.append(mismatch)  # Add any mismatched leftover
+                final_list.append(token)
+                context = context[len(token):]  # Remove matched part
+                mismatch = ""
+                match = True
+                break
+
+        # If no match, accumulate unmatched character(s)
+        if not match:
+            mismatch += context[0]
+            context = context[1:]
+
+        # Safety: break to prevent infinite loop
+        if old_context == context:
+            break
+
+    # Add any leftover mismatches at the end
+    if mismatch:
+        final_list.append(mismatch)
+
+    return final_list
 
 def get_words(text):
     """
@@ -53,7 +114,7 @@ def get_words(text):
 
     return sorted_dict
 
-def generate_n_grams(n_gram_corpus, n, vocab_size):
+def generate_n_grams(n_gram_corpus, n, vocab):
     """
     Generates up to n n-grams from the given corpus.
     For each n from 1 to 'n', creates an N-gram object using the provided corpus.
@@ -66,7 +127,7 @@ def generate_n_grams(n_gram_corpus, n, vocab_size):
     """
     list_of_n_grams = []
     for i in range (0,n):
-        list_of_n_grams.append(N_gram(n_gram_corpus, i+1, vocab_size))
+        list_of_n_grams.append(N_gram(n_gram_corpus, i+1, vocab))
 
     return list_of_n_grams
         

@@ -105,7 +105,7 @@ def get_best_merges(dict_train, text_train, dict_valid,text_valid,min_k,max_k,st
     # changed this to vocab_valid since we want to see how well the ngram performs on the train vocab
     n_gram_valid = to_byte_pair(text_valid, vocab_train)
 
-    our_n_grams_valid = generate_n_grams(n_gram_train,4, len(vocab_train))
+    our_n_grams_valid = generate_n_grams(n_gram_train,4, vocab_train)
     n_gram_num = 0
 
     for n_gram in our_n_grams_valid:
