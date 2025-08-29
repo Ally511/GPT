@@ -2,7 +2,7 @@
 import numpy as np
 import torch
 from tqdm import tqdm
-from utility_functions import get_batch, decode_characters
+from bpe.utility_functions import get_batch, decode_characters
 import math
 # ACHTUNG: added val_dataset to init
 
