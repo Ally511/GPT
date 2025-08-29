@@ -322,6 +322,13 @@ However, while it seemingly does improve the overfitting issue, most of the effe
 </p>
 When looking at the dropout rate in more detail, it becomes clear that while attention and residual dropout doesnt have a strong infuence on the perplexity, embedding Dropout does improve the perplexity by nearly 10 points. 
 
+### Dataset
+The dataset we have been using upto now was a baseline merge dataset produced early in the process. However the tokenization has a strong influence on the perfromance. thus, it makes sense to optimize for them. THe dataset we tested with henceworth, are the best merges produced with the perpelxities from the ngram and the bpe
+<p float="middle">
+  <img src="img/perp_best_merges.png.png" width="250" />
+  <img src="img/perp_2nd_best_merges.png.png" width="250" /> 
+  <img src="img/perp_3rd_best_merges.png.png" width="250" />
+</p>
 
 #### Output
 "other men . brutus what , i am not well ; i have no more than to be at the t to do . brutus i have done no . cassius what , my lord ? brutus , i would not know you know that you do . brutus i know you not , and i am to speak of you ;"
