@@ -325,9 +325,9 @@ When looking at the dropout rate in more detail, it becomes clear that while att
 ### Dataset
 The dataset we have been using upto now was a baseline merge dataset produced early in the process. However the tokenization has a strong influence on the perfromance. thus, it makes sense to optimize for them. THe dataset we tested with henceworth, are the best merges produced with the perpelxities from the ngram and the bpe
 <p float="middle">
-  <img src="img/perp_best_merges.png.png" width="250" />
-  <img src="img/perp_2nd_best_merges.png.png" width="250" /> 
-  <img src="img/perp_3rd_best_merges.png.png" width="250" />
+  <img src="img/perp_best_merges.png" width="250" />
+  <img src="img/perp_2nd_best_merges.png" width="250" /> 
+  <img src="img/perp_3rd_best_merges.png" width="250" />
 </p>
 
 #### Output
