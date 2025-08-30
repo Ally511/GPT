@@ -225,27 +225,26 @@ This observation is also mirrored in the embedding, which changes from noise to 
 
 
 ## Milestone 4: A Simple GPT Model
-The last model we present is a simpler version of a GPT. For this model, we utilize again our predefined Byte-Pair Encoding,
-to ensure better comparability to the N-Gram and the Neural N-Gram. 
+The last model we present is a simpler version of a GPT. For this model, we again utilize our predefined Byte-Pair Encoding to ensure better comparability to the N-Gram and the Neural N-Gram. 
 In the following, we introduce some new concepts, namely Causal Self-Attention and Decoder Blocks.
 Then, we describe how the different building blocks come together in the GPT model and finally explain the training process and its results.
 
 #### Causal Self-Attention
 
 We used a standard architecture for implementing the Causal Self-Attention class.
-A linear layer is created with the dimensions: number of embeddings x 3* number of embeddings that is then split into key quaries and values as well as into different attention heads. Applying the scaled key-query dot product, we then create a causal mask to prevent GPT to access token that are supposed to be predicted while at the same time allowing our model to access previous tokens. We achieved this by setting  the weights of all "future" tokens. 
+A linear layer is created with the dimensions: number of embeddings `n_embd` $\times 3 \cdot$ `n_embd` that is then split into key queries and values, as well as into different attention heads. Applying the scaled key-query dot product, we then create a causal mask to prevent the GPT from accessing tokens that are supposed to be predicted, while at the same time allowing our model to access previous tokens. We achieve this by setting the weights of all "future" tokens. 
 Furthermore we apply softmax to normalize our weights before using our attention dropout.
-The masked attentions weights are then matrix multiplied with our values, yielding our output, that is then reshapd back to the right shape and a residual dropout is applied.
+The masked attention weights are then matrix-multiplied with our values. The output is then reshapd back to the right shape and a residual dropout is applied.
 The Causal Self-Attention class returns a linear output layer containing our attention weights * values, normalized by our residual dropout.
 
 
 #### The Decoder Block
 
 Our implementation follows the classic architecture of transformer decoder blocks.
-Thus, two normalization layers are employed, the first is applied directly before feeding the input through the Causal Self-Attention layer while passing the different dropout rates (residual dropout and attention dropout).
+Thus, two normalization layers are employed. The first is applied directly before feeding the input through the Causal Self-Attention layer while passing the different dropout rates (residual dropout and attention dropout).
 To prevent vanishing gradients, the original input is added to that result forming the first residual connection.
-The result is then forwarded to the second normalization layer and then through a basic MLP with two linear layers, with GeLU as activation function. GeLU addresses again the vanishing gradients problem which often occurs in GPT models.
-Here, we employ dropout again for better generalization. Last, we add another residual connection. 
+The result is then forwarded to the second normalization layer and then passed through a basic MLP with two linear layers, with GeLU as activation function. GeLU once again addresses the vanishing gradients problem that often occurs in GPT models.
+Here, we employ dropout again for better generalization. Lastly, we add another residual connection. 
 In total, this results in the following architecture:
 
 * $x = input$
@@ -258,7 +257,16 @@ MLP:
 * $x' = Linear2(x')$ with $input\_dimension = 4*embedding\_size$, $output\_dimension = embedding\_size$
 * $x' = Dropout(x')$
 * $x = x' + x$
+* 
 #### The GPT model
+
+Our implementation is a considerably simplified version of the full-size GPT models. The main architecture is classical. During initalisation ``__init__`` we first build the transformer layers, starting with an embedding layer for the word tokens and for the positional encoding, then adding a drpopout layer for the embeddings. We then add a set amount of decoder blocks, determined by `n_layer`, and a layer normalisation layer. Lastly, we add a linear layer as the head. Instead of a complex weight and optimiser initialisation scheme, we simply initialise both automatically. Our GPT model class has the following functions:
+
+* ``count_params()``, which returns the number of parameters, excluding the head
+* ``configure_optimizer()``, which, as mentioned above, simply calls the default PyTorch implementation of the `AdamW` optimiser on our parameters
+* ``transformer_forward()``, which is just the forward pass through the transformer layers and is called during our general forward pass
+* ``forward()``, which is the forward pass through the whole model
+* ``generate()``, which takes the index of a token `idx`, the maximum amount of tokens to generate `max_new_tokens`, the temperature `temp` with which to scale the probabilities of the logits by, a boolean `sampling` determining whether the next token is sampled from the distribution, or whether we simply use argmax, and `top_k`, which sets how many top k tokens are considered during sampling.
 
 #### Training
 
@@ -266,11 +274,11 @@ In training, we go through several `trainsteps`. In each trainstep, we use the g
 One is the input batch, that is fed through the GPT model, the other is the target batch. The target batch contains the same sequence as the input batch, only shifted by one, so having the token that directly follows the input token at the same index.
 The input batch is then used to generate the model's output, which is then compared to the target sequence. We use `Categorical Cross entropy` to calculate the resulting loss. This error signal is then propagated through the network via the `AdamW` optimizer.
 The optimizer uses different learning rates for each parameter and is therefore particularly suited for this task. 
-For extrinsic evaluation, we the generate a text with the trained model to calculate its perplexity. The text is also decoded for subjective evaluation.
+For extrinsic evaluation, we then generate a text with the trained model to calculate its perplexity. As this is common for calculating the perplexity of GPT models, we started out simply using the exponential of the loss as our perplexity during training. For better comparability with the n-gram and neural n-gram, however, we use a more similar perplexity calculation for our final performance measurements. After generation, the text is decoded for subjective evaluation.
 
-#### Hyperparameter Search
-### Gridsearch
-We performed a small Gridserach over the following parameters to optimze the model over 3 epochs a 1200 steps : 
+### Hyperparameter Search
+#### Gridsearch
+We performed a small Gridserach over the following parameters to optimise the model over 3 epochs à 1200 steps : 
 * number of layers: [4, 8]
 * number of heads: [2, 4]
 * embedding size: [128, 256]
@@ -281,33 +289,41 @@ To ensure the loss model is optimzized we then train it for 10 epochs with 1000 
 
 ![img.png](img/gpt_loss.png)
 
-As is apparent in the image while the training loss is steadily decreasing, we reach a point of overfitting quite early. This might be the case because splitting the corpus simply means the training data contains differnt works than the validation data, which might contain some inherently unique strucutres. Additionally, simplifications made to the gpt model such simpler weight initialization and optimizer configuration. 
+As is apparent in the image while the training loss is steadily decreasing, we reach a point of overfitting quite early. This might be the case because splitting the corpus simply means the training data contains different works than the validation data, which might contain some inherently unique structures. Additionally, simplifications made to the GPT model, such as simpler weight initialization and optimizer configuration, have likely impacted performance.
+
+#### Scheduled sampling
+
+As was recommended in the lecture, we also implemented annealed teacher-student forcing, or "scheduled sampling". To implement scheduled sampling, we simply modified the forward function. We used the total amount of train steps to anneal the probability `teacher_prob` of using the "student", i.e., the model's own output, instead of the target or "teacher" using a sigmoid-like decay function.
+
+As the output of the GPT is required for each next step, scheduled sampling requires sequential decoding and is thus much slower than the standard GPT implementation, which is why we did not use it to perform the Gridsearch. Instead, we ran it once with the optimised hyperparameters. Unfortunately, it did not significantly improve either learning curve or loss, but, in many cases, made the model performance worse. This could simply be due to the fact that the hyperparameters were optimised for the model without scheduled sampling, but it could also be caused by the rather simplistic implementation of the annealing. Additional tuning and modification would be necessary to investigate this further.
+
+![img.png](img/loss_scheduled_sampling.png)
 
 ### Further exploration
-Based on the parameter combination defined by the grid search we explored some parameters futher.
+Based on the parameter combination defined by the grid search we explored some parameters further.
 
-## Size of the embedding
-The size of the neural embedding is the basis of the model, and has a strong ifluencen on the model size and runtime. As expected there is a strong correlation between the embedding size and the perplexity performance. However, there is a limit to this, at around 512. 
+#### Size of the embedding
+The size of the neural embedding is the basis of the model, and has a strong influencen on the model size and runtime. As expected there is a strong correlation between the embedding size and the perplexity performance. However, there is a limit to this, at around 512. 
 ![img.png](img/emb_size.png)
 
-The text generated by the model with the best embedding size has some notable features. For one, it has a solid use of punctuation with a strange focus on questionmarks. It also contains the dialoge-esque structure common in the more complext modes, with a high frequency of names and a conversation tone.: 
+The text generated by the model with the best embedding size has some notable features. For one, it has a solid use of punctuation with a strange focus on question marks. It also contains the dialoge-esque structure common in the more complex modes, with a high frequency of names and a conversational tone.: 
 
 " cleopatra is he ? or did you it ? mark antony and that you so ? mark antony is he not so ? as it is , sir . octavius caesar let him : he shall in time . mark antony : he was itious in the end . mark antony the le and the ? mark antony the queen ? mark antony and all his face ? second in his death , and he has a laert: his was as he would not have him . exeunt all but antony "
 
 
 #### Dropout
-Dropout is a common method to add normailzation to the model and prevent overfitting. Since we have a notable overfitting issue with out model it makes sense to test out whether higher droupout rates imporve the performance. The model contains 4 dropout parameters: 
-* embd_pdrop: dropout for the embedding layer
-* resid_pdrop: dropout probability for the residual connections
-* attn_pdrop: dropout probability for the attention weights
-* dropout: global dropout probability
+Dropout is a common method to add normalisation to a model and prevent overfitting. Since we have a notable overfitting issue with our model it makes sense to try out whether higher droupout rates improve the performance. The model contains four dropout parameters: 
+* `embd_pdrop`: dropout for the embedding layer
+* `resid_pdrop`: dropout probability for the residual connections
+* `attn_pdrop`: dropout probability for the attention weights
+* `dropout`: global dropout probability
 Increasing the global dropout probabiltiy has no notable effects on the performance 
 <p float="center">
   <img src="img/gpt_loss.png" width="250" />
   <img src="img/loss_dropout_0.4.png" width="250" /> 
 </p>
 However, while it seemingly does improve the overfitting issue, most of the effect is only due to a higher overall loss. This is also reflected in the perplexity, which does not get lower than then 160 mark set by out baseline model. 
-<p float="center">When looking at the dropout rate in more detail, it 
+<p float="center">
 
   <figure style="display:inline-block; text-align:center;">
     <img src="img/embd_pdrop_perp.png" width="250" />
@@ -322,10 +338,10 @@ However, while it seemingly does improve the overfitting issue, most of the effe
     <figcaption>Residual Dropout</figcaption>
   </figure>
 </p>
-When looking at the dropout rate in more detail, it becomes clear that while attention and residual dropout doesnt have a strong infuence on the perplexity, embedding Dropout does improve the perplexity by nearly 10 points. 
+When looking at the dropout rate in more detail, it becomes clear that while attention and residual dropout do not have a strong influence on the perplexity, a higher dropout rate in the embedding layer does improve the perplexity by nearly 10 points. 
 
 ### Dataset
-The dataset we have been using upto now was a baseline merge dataset produced early in the process. However the tokenization has a strong influence on the perfromance. thus, it makes sense to optimize for them. THe dataset we tested with henceworth, are the best merges produced with the perpelxities from the ngram and the bpe
+The dataset we have been using up to now was a baseline merge dataset produced early in the process. However the tokenization has a strong influence on the perfromance. Thus, it makes sense to optimize for them. The dataset we test with henceworth, are the best merges produced with the perplexities from the n-gram and the BPE, as described in Milestone 1.
 <p float="middle">
   <img src="img/perp_best_merges.png" width="250" />
   <img src="img/perp_2nd_best_merges.png" width="250" /> 
