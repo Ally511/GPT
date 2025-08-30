@@ -104,25 +104,30 @@ To intrinsically evaluate the n-grams we use the k best merges produced in Miles
 
 | Merge | Unigram | Bigram | Trigram | 4-gram |
 |------|------|------|------|----------|
-| Best   | 373.932 | 111.872 | 366.948 | 501.771     |
-| 2nd   | 394.808 | 125.166 | 414.621 | 543.982     |
-| 3rd  | 415.713 | 140.449 | 465.555 | 591.304     |
+| Best   | 373.93 | 113.94 | 271.78 | 374.79     |
+| 2nd   | 394.81 | 127.68 | 311.53 | 425.08     |
+| 3rd  | 415.71 | 143.20 | 354.39 | 478.51     |
 
 ![img.png](img/n_gram_perplexities.png)
 
 ![img.png](img/n_gram_prplx_diff.png)
 
-As we can see, the Bigram always performs best. The Trigram or Unigram perform second best. The 4-gram always has the worst performance. This might happen for a number of reason, the n-grams may be overfitting to the rather small corpus, for example, or the smoothing may be too simplistic. We also implemented a hard backoff, and did not include a designated unknown character during training.
+As we can see, the Bigram always performs best, the Trigram second best, then the Unigram. The 4-gram always has the worst performance. In general, the perplexity is rather high. This might happen for a number of reason. Especially the n-grams of a higher order may be overfitting to the rather small corpus, for example, or the smoothing may be too simplistic. We also implemented a hard backoff, and did not include a designated unknown character during training, which may affect perplexity.
 
-For extrinsic evaluation, we use our ``generate()`` function with backoff. We provide it with a short prompt, that is then tokenised. The following output is generated token by token. To generate the following text, we used top_k with $k=4$.
 
-|           | Unigram                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | Bigram                                                                                                                                                          | Trigram                                                                                                                         | 4-gram                                                                                                                                                                                                                                                                                                                                                                         |
-|:----------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------|:--------------------------------------------------------------------------------------------------------------------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Best | cleopatra is my iturwhat ppxi'll ies knoneethem hihere whconpixwn ous ry fayet hath perdeblservter up minhis de 'et than now resk be brutus duwafli'll some de , hbut ynikio moreader thoumay ing stonshall bfirst an our l urmpus e thus let tell whiwaelus give thoudualwarnis opbeawhat soeeorbut lowere seeewhiothello macbeth what ll may swmake e grason leappt's venonhere schave gimemlord unana swno dahansotake out more wameter!                                                                                                                                                                                                                                                  | cleopatra is my sourtues mark that shall tellutive now seek natural ;                                                                                           | cleopatra is my buttons be dismiles and caelihoods are, my countenant, coming to what is't, here will rest defence robin gold . | cleopatra is my stiterstigive hondenbrutus t sihere le ed inmed adour!                                                                                                                                                                                                                                                                                                         |
-| 2nd | cleopatra is my helquiyour some doth ,do goous enl abtiam this eyck ourof resder me ginever comenter ks ?                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | cleopatra is my head upon to w'st up fruled betned unharshuty catle criest women o blos whom petteroutrace must knowoof his face by thy bloody traithyme undo ! | cleopatra is my mothern that day appeared vial, that he can report, like the hymn black, quite .                                | cleopatra is my w kidys weo ks ws lady aclike oomy commhis es mbmen desydoth mark harand with ghse ness waleaknow ys well there simonciromeo then haparwarafdesconso bede my lmost supon be lltwnot d grahanss caesar verin hearson your juenter am ys th bui'll gump sull helss upon ts g spgo thouadnever oulook may great ess naenter drtime t pathere here ch bahe cmark ; |
-| 3rd | cleopatra is my such there she alexeunt hohureseed desdemona up erlord most tint'd parke warfatake nerhis elfidall venchadeafirst my exit , swhe remaft er inselcermacbeth oacreswichabanveen ce logive ghblprishould tenas first have look are ry wany men pleaderbe om bll colness had my wrneforts very suoctavius dryet doth shiiago lthedising a con'd heasuch so ourshould al what beter yn ear' sh tch was eldisbge itloupon very had 'ter et ilexit ble ilwere atobof lord ght we wheagahave rime felgreat first see gin theopbefore an of platobeais beaexshe y dobe any octavius flonourusealcoleach shafaicassius d warhis him tenmay never ' bige muwhich gochict portia not sea | cleopatra is my expressed in rome are out mony crosses out ond in peterrietches which giance the ple her but keep deddkey-horseverynaughs cresty alter ;        | cleopatra is my hand .                                                                                                          | cleopatra is my ' :                                                                                                                                                                                                                                                                                                                                                            |
+
+
+For extrinsic evaluation, we use our ``generate()`` function with backoff. We provide it with a short prompt, "cleopatra is my", that is then tokenised. The following output is generated token by token. To generate the following text, we used top_k with $k=4$.
+
+| Rank | Unigram                                                                                                                        | Bigram                                              | Trigram                                                  | 4-gram                                                                                                                                                         |
+|:-----|:-------------------------------------------------------------------------------------------------------------------------------|:----------------------------------------------------|:---------------------------------------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Best | cleopatra is my , , and the , , , the , , and , , and and , and .                                                              | cleopatra is my lord polonius i do not .            | cleopatra is my daggers, and all things shall be .       | cleopatra is my dagvalour of my evance validityvalued to vy and provoking tere's the sky and vanishes whvaliant is vanik, where savvy to thy knieces vain, the train, with purpose . |
+| 2nd  | cleopatra is my , .                                                                                                            | cleopatra is my lord ;                              | cleopatra is my buvalour, and i will not be aways, and that is not so . | cleopatra is my butt, and knaviv .                                                                                                                              |
+| 3rd  | cleopatra is my , and , .                                                                                                      | cleopatra is my lord polonius 'er, i will i am not a man : | cleopatra is my lord .                                    | cleopatra is my name ;                                                                                                                                         |
+
 
 As we can see, the Bigram and Trigram usually perform relatively well. As we have seen in more extensive tests, we usually get coherent output. As expected, the Unigram samples randomly from the four most used tokens. The rather poor output of the 4-gram is also expected, as it is very likely overfitting to peculiaries of the rather small corpus. 
+
 
 ## Milestone 3: The Neural N-Gram
 
@@ -134,35 +139,35 @@ The Neural N-Gram is composed of the following parts:
 * optimizer
 * generate function
 
-In training a step through the network functions as follows: 
+A single training step through the network functions goes as follows: 
 
-First the training function is called which is passed the number of training steps, as well as after how many steps the training progress should be evaluated. For every step we sample a batch of inputs and targets from the tokenized training version of the shakespeare corpus. With these the forward step is called
+First the training function ``train()`` is called which is passed the number of training steps, as well as after how many steps the training progress should be evaluated. For every step, we sample a batch of inputs and targets from the tokenized version of the Shakespeare training corpus. On these, the forward step ``forward()`` is called.
 
 #### The forward pass
-The goal of the forward pass within training is to quantify the current performance of the embedding. Within the neuronal network, the embedding are the weights (of size vocab_size x vocab_size). From a higher-level perspective however, the embedding is a bigram word-co-occurance matrix that is modified based on the input examples in training. For this, the input is first reshaped into logits, changing their shape from batch, seq_len to batch, seq_len, vocab_size. Then we calculate and return both the logits and the softmaxed cross-entropy loss between the input and the target. 
+The goal of the forward pass within training is to quantify the current performance of the embedding. Within the neuronal network, the embedding are the weights (of size `vocab_size x vocab_size`). From a higher-level perspective however, the embedding is a Bigram word-co-occurence matrix that is modified based on the input examples in training. For this, the input is first reshaped into logits, changing their shape from `batch, seq_len` to `batch, seq_len, vocab_size`. Then, we calculate and return both the logits and the softmaxed cross-entropy loss between the input and the target. 
 
 #### The backward pass
-Now that we have quantified the performance we have to modify the weights accordingly. For this we have to calculate the gradient. Luckly for us the gradient through the softmaxed crossentropy is just the softmaxed input minus the one-hot encoding of the targets. To then apply the errorsignal only to the relevant weights we matrix mutliply them with the transposed one-hot-encoding of the original input. 
+Now that we have quantified the performance, we call ``backward()`` to modify the weights accordingly. To do this, we first have to calculate the gradient. The gradient through the softmaxed crossentropy is just the softmaxed input minus the one-hot encoding of the targets. To then apply the error-signal $\delta$ only to the relevant weights, we perform a matrix-multiplication of the error signal $\delta$  with the transposed one-hot-encoding of the original input. 
 
  #### The optimizer
-For the optimizer we use the the torch version of Adam, which is passed the gradients we calculated in the backward step. For this to work, we had to convert the embedding table into a torch tensor.
+For the optimizer we use the the PyTorch implementation of Adam. To pass the gradients we calculated in the backward step, we have to convert the embedding table into a torch tensor.
 
 #### The training
 To improve the efficiency of the training we added some additional steps: 
 
 #### Early stopping
-Early stopping is a common practice to prevent overfitting and make sure the model is continuously improving during the training process. For this, when building the corpus we spit it into two parts the training corpus 90% an the validation corpus 10%. During the training we collect the loss. Aver a predetermined number of steps (validation_steps) we average the loss on the training set and compare it to how the performance of the model on 1/10*validation_step iterations on the validation set. If the performance decreases on patience iterations of the validation dataset the training is terminated. 
+Early stopping is a common practice to prevent overfitting and make sure the model is continuously improving during the training process. For this, we use both the training and the validation corpus provided. During training we record the loss. Then, after a predetermined number of steps `validation_steps`, we average the loss on the training set and compare it to the model's performance on $`1/10 \cdot validation\_step`$ iterations on the validation set. If the performance decreases on a set amount of iterations of the validation dataset `patience`, the training is terminated. 
 
 #### Saving the model
-As the model-parameters are contained within the embedding matrix the model can be easily saved and reloaded. We automated this as follows: Whenever the file n_grams contains less than k (k=5) entries or if the performance of the current model is better than the worst performing model in the folder, the weights are saved.
+As the model-parameters are contained within the embedding matrix the model can be easily saved and reloaded. We automated this as follows: Whenever the file n_grams contains less than `k` (k=5) entries, or if the performance of the current model is better than the worst-performing model in the folder, the weights are saved.
 
 #### Generation
-The saved embeddings can then in turn be loaded and used to generate text. For this, a starting character and the desired text-length is passed to the generate function of the model. Tbe function then iteratively retrieves the embedding for the current token in the sequence and using a multinomial function samples the following word from it. As the tokes are index numbers at this stakes they are run through a decoding function to convert them into strings. 
+The saved embeddings can then in turn be loaded and used to generate text. For this, a starting character `idx` and the desired text-length `max_new_tokens` is passed to the generate function of the model. The function then iteratively retrieves the embedding for the current token in the sequence and, using a multinomial function, samples the following word from it. As the tokens are index numbers at this stage, we pass them to a decoding function ``decode_characters()`` to convert them into strings. 
 
 #### Parameter
 There are a decent number of parameters and hyperparameters involved in the model, namely: 
-* training_steps (how long the model should be trained) - modified implicitly by the early stopping
-* validation_steps (after how many steps the performance of the model should be checked)
+* `training_steps` (how long the model should be trained) - modified implicitly by the early stopping
+* `validation_steps` (after how many steps the performance of the model should be checked)
 
 | steps| loss | val_loss |
 |-----|-------|----------|
@@ -170,14 +175,14 @@ There are a decent number of parameters and hyperparameters involved in the mode
 | 250 | 4.04  |  6.35  |
 | 500 | 4.09  |  5.51  |
 
-* patience (after how many checks with no improvement the training should be canceled)
+* `patience` (after how many checks with no improvement the training should be cancelled)
 
 | pat| loss | val_loss |
 |---|---|---|
 | 2 | 4.14  |  5.39  |
 | 5 | 4.07  |  5.58  |
 
-* block_size (how many sequences are passed in each pass)
+* `block_size` (how many sequences are passed in each pass)
 
 | size| loss | val_loss |
 |---|---|---|
@@ -185,7 +190,7 @@ There are a decent number of parameters and hyperparameters involved in the mode
 | 12 | 4.07   |  5.59  |
 | 32 | 4.08   |  5.42  |
 
-* seq_size (how long the sequences are)
+* `seq_size` (how long the sequences are)
 
 | size | loss | val_loss |
 |------|------|----------|
@@ -194,13 +199,13 @@ There are a decent number of parameters and hyperparameters involved in the mode
 | 128  | 4.06 | 5.54     |
 
 As we can see here, non of the parameters have a huge influence on the training result. Based on this limited testing, we settled on: 
-sequ_size = 64, block_size = 12, steps = 100, patience = 2
+`seq_size` = 64, `block_size` = 12, `steps` = 100, `patience` = 2
 
-* training loss, validation loss - the performance of the model on the training / validation set 
-The loss of the model looks like expected, although it stagnates rather early which might be connected to the rather limited training corpus: 
+* `training loss`, `validation loss` - the performance of the model on the training / validation set 
+The loss of the model looks as expected, although it stagnates rather early. This may be a result of the rather limited training corpus. 
 ![img.png](img/loss.png)
 
-This observation is also mirrored in the embedding which changes from noise to patterns over the training intervals:
+This observation is also mirrored in the embedding, which changes from noise to patterns over the training intervals:
 <p float="middle">
   <img src="img/emb1.png" width="250" />
   <img src="img/emb2.png" width="250" /> 
@@ -208,10 +213,10 @@ This observation is also mirrored in the embedding which changes from noise to p
 </p>
 
 
-* perplexity: As already mentioned in the previous n-gram, perplexity is a common tool to establish the performance of a language model. For our neural n-gram we have a perplexity of around 70, with our best model at 68.91. If instead of using the validation performance as a stoping criteria, we use the perplexity, we end up with a longer training, but a final perplexity of only 67.70. This suggests a strong link between the validation performance and the perplexity
+* `perplexity`: As already mentioned in the previous n-gram, perplexity is a common tool to establish the performance of a language model. For our neural n-gram we have a perplexity of around 70, with our best model at 68.91. If instead of using the validation performance as a stopping criteria, we use the perplexity, we end up with a longer training, but a final perplexity of only 67.70. This suggests a strong link between the validation performance and the perplexity
 
  #### Output
- Examples for outputs: 
+ Examples of outputs: 
  "cleopatra , good brutus get ; bid  desdemona i will , , nor can he would aim of hadst cassius is it him tame , run on , unto his jewelling her he cannot find"
 
 "fire . exit thee : i urp's than any ? will get clear : if locks in destiness , ft of your prince ."
