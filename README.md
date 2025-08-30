@@ -218,7 +218,7 @@ This observation is also mirrored in the embedding, which changes from noise to 
 * `improved merges dataset`: For the baseline in both the neural n-gram and the GPT model we used an old dataset which was not optimized to properly capture the difference of out best_merges dataset. For the neural-n-gram, the best-merges dataset does not improve the perplexity, finishing training at a perplexity on the test dataset of 92. This is interesting as both the loss and the visualization of the model embedding look better than for out baseline dataset. 
 <p float="middle">
   <img src="img/nngram_emb_best.png" width="250" />
-  <img src="img/nngram_loss_best.png" width="250" /> 
+  <img src="img/nngram_loss_best.png" width="300" /> 
 </p>
 
  #### Output
