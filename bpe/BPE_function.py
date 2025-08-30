@@ -3,58 +3,55 @@
 function to create byte pairs based off a dictionary of tokens and their counts.
 """
 import numpy as np
-from collections import defaultdict
-from collections import OrderedDict
-from collections import Counter
+from collections import defaultdict, Counter
 
 from bpe.utility_functions import performance,find_top_indices,generate_n_grams, to_byte_pair
 
 def bpe(dictionary, k):
   """
+  Searches most common occurence of token following another. Merges them, and appends token to voabulary. 
+
   Input:
-    dictionary (dict): a dictionary that contains the tokens and their respective counts
+    dictionary (dict): a dictionary that contains the tokens and their respective occurence counts
+    k (int): number of merges before returning
   return:
     vocab_bpe (list): vocabulary of the corpus
-    sorted_token_freq:
-    dict_matrix:
+    sorted_token_freq: contains token frequencies after k merges, sorted
+    dict_matrix: contains dictionary after k merges
   """
   # get all unique characters in original corpus
   all_keys = "_ ".join(dictionary.keys())
   vocab_bpe = list(set(all_keys))
 
-  # Corpus/dictionary in einzelne tokens splitten, nach jedem Wort (VOR space!) "_" einfügen
-    # worte als list of characters
+  # split into single tokens: add "_" after each word, words as list of characters
   dict_matrix = []
   for key, value in dictionary.items():
     new_key = list(f"{str(key)}_ ")
     dict_matrix.append([new_key, value])
 
-  # NICHT corpus, sondern liste an Wörtern in einzelne tokens splitten,
-  # >> jede occurence mit counts der Worte multiplizieren
-  #token_freq = defaultdict(int) # TODO: does that need to be moved outside of the loop?
   iteration = True
   num_rounds = 0
   while iteration:
-    token_freq = defaultdict(int) # ACHTUNG: moved this inside again
+    token_freq = defaultdict(int) 
     for token_list, value in dict_matrix:
       for i in range(len(token_list)-2):
-        # wollen den und den nächsten token als key
+        # search key is current and next token
         search_key = token_list[i] + token_list[i+1]
-        # zu dictionary hinzufügen falls key noch nicht existiert
+        # add to dictionary if not already there
         token_freq[search_key] += value
 
-    # word_freqs: gehen jede existierende Folge aus zwei tokens in list of words von vorne bis hinten durch
+    # word_freqs: go through list of words counting each pair of tokens
     c = Counter(token_freq)
     sorted_token_freq = {key: value for key, value in sorted(
         c.items(), key=lambda item: item[1], reverse=True)}
 
-    # Find the most frequent token not already in vocab_bpe
+    # find most frequent token not already in vocab_bpe
     for token in sorted_token_freq.keys():
       if token not in vocab_bpe:
         first_token = token
         break
       else:
-        first_token = None  # Optional: fallback in case all tokens are already in vocab
+        first_token = None  # fallback in case all tokens are already in vocab
 
     if first_token:
       vocab_bpe.append(first_token)
@@ -68,9 +65,9 @@ def bpe(dictionary, k):
             search_key = token_list[j] + token_list[j + 1]
             if search_key == first_token:
                 merged_token = search_key
-                # Merge the tokens
+                # merge tokens
                 token_list = token_list[:j] + [merged_token] + token_list[j + 2:]
-                # Don't increment j — might be able to merge again
+                # don't increment j — might be able to merge again
             else:
                 j += 1
         dict_matrix[i][0] = token_list
@@ -81,9 +78,8 @@ def bpe(dictionary, k):
     else:
        num_rounds += 1
        accuracy = performance(dictionary, vocab_bpe, 500)
-       if accuracy > 70: # ACHTUNG: changed this line
+       if accuracy > 70: 
           iteration = False
-       #iteration != (accuracy > 70)
 
        if num_rounds > 1500:
           print("exceeded, accuracy: ", accuracy)
@@ -99,10 +95,8 @@ def get_best_merges(dict_train, text_train, dict_valid,text_valid,min_k,max_k,st
   perplexities = []
 
   for k in range (min_k,max_k,step):
-    vocab_train, sorted_token_freq_train, dict_matrix_train = bpe(dict_train,k)
+    vocab_train, _, _ = bpe(dict_train,k)
     n_gram_train = to_byte_pair(text_train, vocab_train)
-    vocab_valid, sorted_token_freq_valid, dict_matrix_valid = bpe(dict_valid,k)
-    # changed this to vocab_valid since we want to see how well the ngram performs on the train vocab
     n_gram_valid = to_byte_pair(text_valid, vocab_train)
 
     our_n_grams_valid = generate_n_grams(n_gram_train,4, vocab_train)
@@ -117,11 +111,6 @@ def get_best_merges(dict_train, text_train, dict_valid,text_valid,min_k,max_k,st
       n_grams.append(n_gram_num)
 
   top_indices = find_top_indices(perplexities, 3)
-  
-  """out   = []
-  for ix in top_indices:
-    out.extend((ks[ix], perplexities[ix], ngrams[ix]))
-  return tuple(out)  # (k1,p1,n1, k2,p2,n2, k3,p3,n3)"""
   
   best_k = ks[top_indices[0]]
   best_perplexity = perplexities[top_indices[0]]
