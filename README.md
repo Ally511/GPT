@@ -215,10 +215,10 @@ This observation is also mirrored in the embedding, which changes from noise to 
 
 * `perplexity`: As already mentioned in the previous n-gram, perplexity is a common tool to establish the performance of a language model. For our neural n-gram we have a perplexity of around 70, with our best model at 68.91. If instead of using the validation performance as a stopping criteria, we use the perplexity, we end up with a longer training, but a final perplexity of only 67.70. This suggests a strong link between the validation performance and the perplexity
 
-* `improved merges dataset`: For the baseline in both the neural n-gram and the GPT model we used an old dataset which was not optimized to properly capture the difference of out best_merges dataset. For the neural-n-gram, the best-merges dataset does not improve the perplexity, finishing training at a perplexity on the test dataset of 92. This is interesting as both the loss and the visualization of the model embedding look better than for out baseline dataset. 
+* `improved merges dataset`: For the baseline in both the neural n-gram and the GPT model we used an old dataset which was not optimized to properly capture the difference of out best_merges dataset. For the neural-n-gram, the best-merges dataset does not improve the perplexity, finishing training at a perplexity on the test dataset of 92. This is interesting as both the loss and the visualization of the model embedding look slightly better than for out baseline dataset. 
 <p float="middle">
   <img src="img/nngram_emb_best.png" width="250" />
-  <img src="img/nngram_loss_best.png" width="300" /> 
+  <img src="img/nngram_loss_best.png" width="350" /> 
 </p>
 
  #### Output
