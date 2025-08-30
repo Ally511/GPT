@@ -224,11 +224,13 @@ This observation is also mirrored in the embedding, which changes from noise to 
 
  #### Output
  Examples of outputs: 
+
  "cleopatra , good brutus get ; bid  desdemona i will , , nor can he would aim of hadst cassius is it him tame , run on , unto his jewelling her he cannot find"
 
 "fire . exit thee : i urp's than any ? will get clear : if locks in destiness , ft of your prince ."
 
 "i have two ers , and most noble master ; but undged faith , whose love ? why thou counow , my compulgibesin death . . a tinent . venice , thou knee"
+
 
 
 ## Milestone 4: A Simple GPT Model
@@ -298,6 +300,53 @@ To ensure the loss model is optimzized we then train it for 10 epochs with 1000 
 
 As is apparent in the image while the training loss is steadily decreasing, we reach a point of overfitting quite early. This might be the case because splitting the corpus simply means the training data contains different works than the validation data, which might contain some inherently unique structures. Additionally, simplifications made to the GPT model, such as simpler weight initialization and optimizer configuration, have likely impacted performance.
 
+##### Output
+Examples of output from out baseline GPT model: 
+
+Text (1): 
+"other men . brutus what , i am not well ; i have no more than to be at the t to do . brutus i have done no . cassius what , my lord ? brutus , i would not know you know that you do . brutus i know you not , and i am to speak of you ;"
+
+Text (2):
+
+"cleopatra , if you to the e-house . exit charmian no , nor i in love with you  cleopatra and , sir , . cleopatra you have done , me ; and i will not be ."
+
+Text (3):
+
+"last , i pray thee ; for i have seen the last night of the world . desdemona i you , my lord , my lord , i am for this . othello i am to have done any man in my life ; and , for my soul ;"
+
+##### Temperature and Top-K
+For the GPT model there are two more variables that can be modified for text generation. 
+* temperature - used to scale the logits, controls the randomness of the output 
+* top k - limits the options selected from to only the top k logits 
+
+The influence of the top k is as expected. If we limit the top-k too much we get output that is characterised by repeating tokens and very little grammatical variation: 
+
+k = 5 : "cleopatra pyhus why , him , he was itious , and he hath lost his ted upon my sword the of , and that was him so his wife : i , and i am the cause . enter , , , , and their ers bassanio but with a , here in the . portia and this , and this way , you must play a que : and now i see that same , the ther have a tning , the les and all the jues of good y : and , , "
+
+Along similar lines, a high k has high variation. This also means, that while we have gramatically fairly sound sentences, we lose the hints of drama-typical dialogue structure, that is hinted at in Text(1): 
+
+k = 50: "cleopatra , i am sure , i know that igo ; but , if he should to hear no more than to be ard cies , will i not reason . i will you torp ; for it , for i'll reid , if it be tion to you . i will you , dine with you . exit lady tang , you know not me , you are not well . emilia be , when you are loose : you shall see this , when you have not 'tis , it is a"
+
+Based on this a k between 20 - 30 would be optimal for our purposes.
+
+Given that the influence of temperature is less on a single output and more on the variability of the outputs overall, its influence is harder to gauge. Comparing 10 short samples of text with a very high and a very low temperature makes the differences more clear.
+
+Temperature 0.001: 
+* all . cleopatra i am glad you to speak to him : if he will 
+* all . hamlet i am glad to be taken . hamlet no, my 
+* all the world, and the imperial . hamlet then is 
+* all the world, and the wilds it is . menas the 
+* all for him . cassius i am no nsorry for . brutus i am
+
+Temperature 1.0: 
+* all of down : i am sorry for you . thus then, my 
+* all in bed ; the ard is not ii good . r juliet no, ge 
+* all the rose of our lives  but let that, let not the 
+* all in his lips . who, in the page, by the 
+* all my wife  i was dy debe might be tided, but
+
+While the output for the low temperature is not deterministic both the sentence structure and  the vocabulary is significantly more varied for the high temperature. What is also notable is, that names for some reason are a lot more frequent in the low temperature outputs. As we are more interested in a breath of generations a higher temperature is more useful for us. 
+
 #### Scheduled sampling
 
 As was recommended in the lecture, we also implemented annealed teacher-student forcing, or "scheduled sampling". To implement scheduled sampling, we simply modified the forward function. We used the total amount of train steps to anneal the probability `teacher_prob` of using the "student", i.e., the model's own output, instead of the target or "teacher" using a sigmoid-like decay function.
@@ -310,16 +359,18 @@ As the output of the GPT is required for each next step, scheduled sampling requ
 Based on the parameter combination defined by the grid search we explored some parameters further.
 
 #### Size of the embedding
-The size of the neural embedding is the basis of the model, and has a strong influencen on the model size and runtime. As expected there is a strong correlation between the embedding size and the perplexity performance. However, there is a limit to this, at around 512. 
+The size of the neural embedding is the basis of the model, and has a strong influence on the model size and runtime. As expected there is a strong correlation between the embedding size and the perplexity performance. However, there is a limit to this, at around 512, as is apparent in the graphic below: 
 ![img.png](img/emb_size.png)
 
-The text generated by the model with the best embedding size has some notable features. For one, it has a solid use of punctuation with a strange focus on question marks. It also contains the dialoge-esque structure common in the more complex modes, with a high frequency of names and a conversational tone.: 
+The text generated by the model with the best embedding size has some notable features, differentiating it from out baseline GPT output. For one, it has a solid use of punctuation with a strange focus on question marks. It also contains the dialoge-esque structure common in the more complex modes, with a high frequency of names and a conversational tone.
+
+Example:
 
 " cleopatra is he ? or did you it ? mark antony and that you so ? mark antony is he not so ? as it is , sir . octavius caesar let him : he shall in time . mark antony : he was itious in the end . mark antony the le and the ? mark antony the queen ? mark antony and all his face ? second in his death , and he has a laert: his was as he would not have him . exeunt all but antony "
 
 
 #### Dropout
-Dropout is a common method to add normalisation to a model and prevent overfitting. Since we have a notable overfitting issue with our model it makes sense to try out whether higher droupout rates improve the performance. The model contains four dropout parameters: 
+Dropout is a common method to add normalisation to a model and prevent overfitting. Since we have a notable overfitting issue with our model it makes sense to try out whether higher dropout rates improve the performance. The model contains four dropout parameters: 
 * `embd_pdrop`: dropout for the embedding layer
 * `resid_pdrop`: dropout probability for the residual connections
 * `attn_pdrop`: dropout probability for the attention weights
@@ -354,13 +405,7 @@ The dataset we have been using up to now was a baseline merge dataset produced e
   <img src="img/perp_2nd_best_merges.png" width="250" /> 
   <img src="img/perp_3rd_best_merges.png" width="250" />
 </p>
-
-#### Output
-"other men . brutus what , i am not well ; i have no more than to be at the t to do . brutus i have done no . cassius what , my lord ? brutus , i would not know you know that you do . brutus i know you not , and i am to speak of you ;"
-
-"cleopatra , if you to the e-house . exit charmian no , nor i in love with you  cleopatra and , sir , . cleopatra you have done , me ; and i will not be ."
-
-"last , i pray thee ; for i have seen the last night of the world . desdemona i you , my lord , my lord , i am for this . othello i am to have done any man in my life ; and , for my soul ;"
+As expected, the performance significantly improved for the optimized datasets, dropping the peroplexity slightly below 80 for the best_merges. However, even the improved corpora do not solve out overfitting problem, as even for higher epoch counts the perplexity does not improve beyond 80.
 
 ## Comparison
 #### Perplexity
